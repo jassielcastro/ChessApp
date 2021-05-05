@@ -147,8 +147,8 @@ class GameRepositoryTest {
 
     @Test
     fun `check some King movement 2`() {
-        gameRepositoryTest.updateMovement(Pawn(Position(5, 7), Color.BLACK), Position(5, 6), gameRepositoryTest.whoIsWaiting(), gameRepositoryTest.whoIsMoving())
-        val firstKingMoves = gameRepositoryTest.getPossibleMovementsOf(King(Position(5, 8), Color.BLACK), gameRepositoryTest.whoIsWaiting(), gameRepositoryTest.whoIsMoving())
+        gameRepositoryTest.updateMovement(Pawn(Position(5, 7), Color.BLACK), Position(5, 6), gameRepositoryTest.whoIsWaiting())
+        val firstKingMoves = gameRepositoryTest.getPossibleMovementsOf(King(Position(5, 8), Color.BLACK), gameRepositoryTest.whoIsWaiting())
         assertEquals(firstKingMoves.size, 1)
     }
 

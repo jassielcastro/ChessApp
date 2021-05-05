@@ -25,13 +25,15 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
         game.playerOne
     }
 
-    override fun updateMovement(chessPiece: ChessPiece, newPosition: Position, playerRequest: Player, playerWaiting: Player) {
+    override fun getEnemyOf(player: Player): Player = if (player == game.playerOne) game.playerTwo else game.playerOne
+
+    override fun updateMovement(chessPiece: ChessPiece, newPosition: Position, playerRequest: Player) {
         with(playerRequest) {
             getChessPieceFrom(this, chessPiece.currentPosition)?.let {
                 it.currentPosition = newPosition
             }
-            playerWaiting.apply {
-                if (existPieceOn(newPosition, playerWaiting) && !isKingEnemy(newPosition)) {
+            getEnemyOf(playerRequest).apply {
+                if (existPieceOn(newPosition, this) && !isKingEnemy(newPosition)) {
                     availablePieces.remove(getChessPieceFrom(this, newPosition))
                 }
             }
@@ -54,13 +56,13 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
     override fun getChessPieceFrom(player: Player, position: Position): ChessPiece? =
         player.availablePieces.find { position == it.currentPosition }
 
-    override fun getPossibleMovementsOf(chessPiece: ChessPiece, playerRequest: Player, playerWaiting: Player): List<Position> {
+    override fun getPossibleMovementsOf(chessPiece: ChessPiece, playerRequest: Player): List<Position> {
         return when(chessPiece) {
             is Pawn -> pawnMovements(chessPiece)
-            is Bishop -> bishopMovements(chessPiece, playerRequest, playerWaiting)
+            is Bishop -> bishopMovements(chessPiece, playerRequest)
             is Knight -> knightMovements(chessPiece)
-            is Rook -> rookMovements(chessPiece, playerRequest, playerWaiting)
-            is Queen -> queenMovements(chessPiece, playerRequest, playerWaiting)
+            is Rook -> rookMovements(chessPiece, playerRequest)
+            is Queen -> queenMovements(chessPiece, playerRequest)
             is King -> kingMovements(chessPiece)
             else -> emptyList()
         }.clean(playerRequest)
@@ -71,7 +73,7 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
             getChessPieceFrom(playerRequest, kingPosition)?.let { king ->
                 val availableMovesOfKing = getPossibleMovementsOf(king)
                 val enemyMoves = playerWaiting.availablePieces.map {
-                    getPossibleMovementsOf(it, playerWaiting, playerRequest)
+                    getPossibleMovementsOf(it, playerWaiting)
                 }.flatten()
                 if (availableMovesOfKing.isEmpty() && enemyMoves.contains(kingPosition)) {
                     return true
@@ -86,7 +88,7 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
     override fun isCheckedKingOf(playerRequest: Player, playerWaiting: Player): Boolean = with(playerWaiting) {
         val kingPosition = getKingPositionFrom(playerRequest)
         return this.availablePieces.any {
-            getPossibleMovementsOf(it, playerWaiting, playerRequest).contains(kingPosition)
+            getPossibleMovementsOf(it, playerWaiting).contains(kingPosition)
         }
     }
 
@@ -119,8 +121,8 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
         return possibleMoves
     }
 
-    private fun bishopMovements(chessPiece: ChessPiece, playerRequest: Player, playerWaiting: Player): List<Position> {
-        return getDiagonalMovements(chessPiece, playerRequest, playerWaiting)
+    private fun bishopMovements(chessPiece: ChessPiece, playerRequest: Player): List<Position> {
+        return getDiagonalMovements(chessPiece, playerRequest)
     }
 
     private fun knightMovements(chessPiece: ChessPiece): List<Position> {
@@ -135,14 +137,14 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
         return possibleMoves
     }
 
-    private fun rookMovements(chessPiece: ChessPiece, playerRequest: Player, playerWaiting: Player): List<Position> {
-        return getLinealMovements(chessPiece, playerRequest, playerWaiting)
+    private fun rookMovements(chessPiece: ChessPiece, playerRequest: Player): List<Position> {
+        return getLinealMovements(chessPiece, playerRequest)
     }
 
-    private fun queenMovements(chessPiece: ChessPiece, playerRequest: Player, playerWaiting: Player): List<Position> {
+    private fun queenMovements(chessPiece: ChessPiece, playerRequest: Player): List<Position> {
         val possibleMoves = mutableListOf<Position>()
-        possibleMoves.addAll(getDiagonalMovements(chessPiece, playerRequest, playerWaiting))
-        possibleMoves.addAll(getLinealMovements(chessPiece, playerRequest, playerWaiting))
+        possibleMoves.addAll(getDiagonalMovements(chessPiece, playerRequest))
+        possibleMoves.addAll(getLinealMovements(chessPiece, playerRequest))
         return possibleMoves
     }
 
@@ -171,14 +173,14 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
     private fun isKingEnemy(position: Position): Boolean
         = getChessPieceFrom(whoIsWaiting(), position) is King
 
-    private fun getDiagonalMovements(chessPiece: ChessPiece, playerRequest: Player, playerWaiting: Player): List<Position> {
+    private fun getDiagonalMovements(chessPiece: ChessPiece, playerRequest: Player): List<Position> {
         val possibleMoves = mutableListOf<Position>()
         for (d in diagonalMoves) {
             for (position in 1..Board.CELL_COUNT) {
                 val newPosition = chessPiece.next(d.first * position, d.second * position)
                 if (!existPieceOn(newPosition, playerRequest)) {
                     possibleMoves.add(newPosition)
-                    if (existPieceOn(newPosition, playerWaiting)) {
+                    if (existPieceOn(newPosition, getEnemyOf(playerRequest))) {
                         break
                     }
                 } else {
@@ -189,14 +191,14 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
         return possibleMoves
     }
 
-    private fun getLinealMovements(chessPiece: ChessPiece, playerRequest: Player, playerWaiting: Player): List<Position> {
+    private fun getLinealMovements(chessPiece: ChessPiece, playerRequest: Player): List<Position> {
         val possibleMoves = mutableListOf<Position>()
         for (d in linealMoves) {
             for (position in 1..Board.CELL_COUNT) {
                 val newPosition = chessPiece.next(d.first * position, d.second * position)
                 if (!existPieceOn(newPosition, playerRequest)) {
                     possibleMoves.add(newPosition)
-                    if (existPieceOn(newPosition, playerWaiting)) {
+                    if (existPieceOn(newPosition, getEnemyOf(playerRequest))) {
                         break
                     }
                 } else {
