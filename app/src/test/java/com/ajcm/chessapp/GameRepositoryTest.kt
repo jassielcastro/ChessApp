@@ -62,6 +62,7 @@ class GameRepositoryTest {
         assertTrue(gameRepositoryTest.existPieceOn(Position(3, 1)))
         gameRepositoryTest.updateMovement(Bishop(Position(3, 1), Color.WHITE), Position(5, 3))
         assertTrue(gameRepositoryTest.existPieceOn(Position(5, 3)))
+        assertEquals(gameRepositoryTest.whoIsMoving().movesMade.size, 1)
     }
 
     @Test

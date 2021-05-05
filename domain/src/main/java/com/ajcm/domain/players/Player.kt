@@ -1,10 +1,12 @@
 package com.ajcm.domain.players
 
 import com.ajcm.domain.board.Color
-import com.ajcm.domain.board.Position
+import com.ajcm.domain.game.Movement
 import com.ajcm.domain.pieces.*
 
 data class Player(val color: Color, var isMoving: Boolean) {
+    val movesMade: MutableList<Movement> = mutableListOf()
+
     val availablePieces: MutableList<ChessPiece> = mutableListOf(
         Pawn(if (color == Color.WHITE) Pair(1, 2) else Pair(1, 7) , color),
         Pawn(if (color == Color.WHITE) Pair(2, 2) else Pair(2, 7) , color),

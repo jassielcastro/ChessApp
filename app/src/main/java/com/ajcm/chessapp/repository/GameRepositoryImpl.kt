@@ -5,6 +5,8 @@ import com.ajcm.domain.board.Board
 import com.ajcm.domain.board.Color
 import com.ajcm.domain.board.Position
 import com.ajcm.domain.game.Game
+import com.ajcm.domain.game.Movement
+import com.ajcm.domain.game.Removed
 import com.ajcm.domain.pieces.*
 import com.ajcm.domain.players.Player
 
@@ -29,14 +31,20 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
 
     override fun updateMovement(chessPiece: ChessPiece, newPosition: Position, playerRequest: Player) {
         with(playerRequest) {
+            val movement = Movement(chessPiece)
             getChessPieceFrom(this, chessPiece.currentPosition)?.let {
                 it.currentPosition = newPosition
-            }
+                movement.position = newPosition
+            } ?: return
             getEnemyOf(playerRequest).apply {
                 if (existPieceOn(newPosition, this) && !isKingEnemy(newPosition)) {
-                    availablePieces.remove(getChessPieceFrom(this, newPosition))
+                    getChessPieceFrom(this, newPosition)?.let { piece ->
+                        availablePieces.remove(piece)
+                        movement.removedEnemy = Removed(piece, newPosition)
+                    }
                 }
             }
+            playerRequest.movesMade.add(movement)
         }
     }
 
