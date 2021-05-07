@@ -29,7 +29,7 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
 
     override fun getEnemyOf(player: Player): Player = if (player == game.playerOne) game.playerTwo else game.playerOne
 
-    override fun updateMovement(chessPiece: ChessPiece, newPosition: Position, playerRequest: Player) {
+    override fun updateMovement(chessPiece: Piece, newPosition: Position, playerRequest: Player) {
         with(playerRequest) {
             val movement = Movement(chessPiece)
             getChessPieceFrom(this, chessPiece.currentPosition)?.let {
@@ -61,17 +61,17 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
         availablePieces.map { it.currentPosition }.contains(position)
     }
 
-    override fun getChessPieceFrom(player: Player, position: Position): ChessPiece? =
+    override fun getChessPieceFrom(player: Player, position: Position): Piece? =
         player.availablePieces.find { position == it.currentPosition }
 
-    override fun getPossibleMovementsOf(chessPiece: ChessPiece, playerRequest: Player): List<Position> {
+    override fun getPossibleMovementsOf(chessPiece: Piece, playerRequest: Player): List<Position> {
         return when(chessPiece) {
-            is Pawn -> pawnMovements(chessPiece)
-            is Bishop -> bishopMovements(chessPiece, playerRequest)
-            is Knight -> knightMovements(chessPiece)
-            is Rook -> rookMovements(chessPiece, playerRequest)
-            is Queen -> queenMovements(chessPiece, playerRequest)
-            is King -> kingMovements(chessPiece)
+            is Piece.Pawn -> pawnMovements(chessPiece)
+            is Piece.Bishop -> bishopMovements(chessPiece, playerRequest)
+            is Piece.Knight -> knightMovements(chessPiece)
+            is Piece.Rook -> rookMovements(chessPiece, playerRequest)
+            is Piece.Queen -> queenMovements(chessPiece, playerRequest)
+            is Piece.King -> kingMovements(chessPiece)
             else -> emptyList()
         }.clean(playerRequest)
     }
@@ -107,10 +107,10 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
     private fun getKingPositionFrom(player: Player): Position? =
         player.availablePieces.filterIsInstance<King>().map { it.currentPosition }.firstOrNull()
 
-    private fun pawnMovements(chessPiece: ChessPiece): List<Position> {
+    private fun pawnMovements(chessPiece: Piece): List<Position> {
         val isFirstMovement = chessPiece.isFirstMovement()
         val possibleMoves = mutableListOf<Position>()
-        val direction = if (chessPiece.color == Color.WHITE) 1 else -1
+        val direction = if (chessPiece.getColor() == Color.WHITE) 1 else -1
         if (isFirstMovement && !existPieceOn(chessPiece.next(0, 1 * direction), whoIsWaiting())
             && !existPieceOn(chessPiece.next(0, 2 * direction), whoIsWaiting())) {
             possibleMoves.add(chessPiece.next(0, 2 * direction))
@@ -129,11 +129,11 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
         return possibleMoves
     }
 
-    private fun bishopMovements(chessPiece: ChessPiece, playerRequest: Player): List<Position> {
+    private fun bishopMovements(chessPiece: Piece, playerRequest: Player): List<Position> {
         return getDiagonalMovements(chessPiece, playerRequest)
     }
 
-    private fun knightMovements(chessPiece: ChessPiece): List<Position> {
+    private fun knightMovements(chessPiece: Piece): List<Position> {
         val possibleMoves = mutableListOf<Position>()
         for (position in -2..2) {
             val y = if (position % 2 != 0) 2 else 1
@@ -145,18 +145,18 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
         return possibleMoves
     }
 
-    private fun rookMovements(chessPiece: ChessPiece, playerRequest: Player): List<Position> {
+    private fun rookMovements(chessPiece: Piece, playerRequest: Player): List<Position> {
         return getLinealMovements(chessPiece, playerRequest)
     }
 
-    private fun queenMovements(chessPiece: ChessPiece, playerRequest: Player): List<Position> {
+    private fun queenMovements(chessPiece: Piece, playerRequest: Player): List<Position> {
         val possibleMoves = mutableListOf<Position>()
         possibleMoves.addAll(getDiagonalMovements(chessPiece, playerRequest))
         possibleMoves.addAll(getLinealMovements(chessPiece, playerRequest))
         return possibleMoves
     }
 
-    private fun kingMovements(chessPiece: ChessPiece): List<Position> {
+    private fun kingMovements(chessPiece: Piece): List<Position> {
         val possibleMoves = mutableListOf<Position>()
         val directions = mutableListOf<Position>()
         directions.addAll(diagonalMoves)
@@ -167,7 +167,7 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
         return possibleMoves
     }
 
-    private fun ChessPiece.next(sumX: Int, sumY: Int) = Position(
+    private fun Piece.next(sumX: Int, sumY: Int) = Position(
         this.getX() + sumX,
         this.getY() + sumY
     )
@@ -179,9 +179,9 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
     }
 
     private fun isKingEnemy(position: Position): Boolean
-        = getChessPieceFrom(whoIsWaiting(), position) is King
+        = getChessPieceFrom(whoIsWaiting(), position) is Piece.King
 
-    private fun getDiagonalMovements(chessPiece: ChessPiece, playerRequest: Player): List<Position> {
+    private fun getDiagonalMovements(chessPiece: Piece, playerRequest: Player): List<Position> {
         val possibleMoves = mutableListOf<Position>()
         for (d in diagonalMoves) {
             for (position in 1..Board.CELL_COUNT) {
@@ -199,7 +199,7 @@ class GameRepositoryImpl(private val game: Game, private val board: Board) : Gam
         return possibleMoves
     }
 
-    private fun getLinealMovements(chessPiece: ChessPiece, playerRequest: Player): List<Position> {
+    private fun getLinealMovements(chessPiece: Piece, playerRequest: Player): List<Position> {
         val possibleMoves = mutableListOf<Position>()
         for (d in linealMoves) {
             for (position in 1..Board.CELL_COUNT) {
