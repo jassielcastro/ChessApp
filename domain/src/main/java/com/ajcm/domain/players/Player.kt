@@ -4,7 +4,9 @@ import com.ajcm.domain.board.Color
 import com.ajcm.domain.game.Movement
 import com.ajcm.domain.pieces.*
 
-data class Player(val color: Color, var isMoving: Boolean) {
+data class Player(val color: Color) {
+
+    var isMoving: Boolean = false
     val movesMade: MutableList<Movement> = mutableListOf()
 
     val availablePieces: MutableList<Piece> = mutableListOf(
@@ -25,4 +27,10 @@ data class Player(val color: Color, var isMoving: Boolean) {
         Queen(if (color == Color.WHITE) Pair(4, 1) else Pair(4, 8) , color),
         King(if (color == Color.WHITE) Pair(5, 1) else Pair(5, 8) , color)
     )
+
+    init {
+        if (color == Color.WHITE) {
+            isMoving = true
+        }
+    }
 }

@@ -16,8 +16,8 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class GameSourceTest {
 
-    private val playerOne = Player(Color.WHITE, true)
-    private val playerTwo = Player(Color.BLACK, false)
+    private val playerOne = Player(Color.WHITE)
+    private val playerTwo = Player(Color.BLACK)
     private val game: Game = Game(playerOne, playerTwo, Board())
     private val gameRepositoryTest = GameSourceImpl(game)
 
