@@ -66,10 +66,10 @@ class GameSourceImpl(private val game: Game) : GameSource {
         } ?: false
     }
 
-    override fun isKingCheckedOf(playerRequest: Player, playerWaiting: Player): Boolean = with(playerWaiting) {
-        val kingPosition = getKingPositionFrom(playerRequest)
-        return this.availablePieces.any {
-            it.getPossibleMovements(playerWaiting, game).contains(kingPosition)
+    override fun isKingCheckedOf(playerRequest: Player, playerWaiting: Player): Boolean {
+        val kingPosition = getKingPositionFrom(playerWaiting)
+        return playerRequest.availablePieces.any {
+            it.getPossibleMovements(playerRequest, game).contains(kingPosition)
         }
     }
 

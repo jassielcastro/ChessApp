@@ -9,7 +9,7 @@ import com.ajcm.domain.players.Player
 
 abstract class Piece(position: Position, val color: Color) : Coordinate(position) {
 
-    val initialPosition: Position = position
+    private val initialPosition: Position = position
 
     fun isFirstMovement(): Boolean = this.initialPosition == position
 

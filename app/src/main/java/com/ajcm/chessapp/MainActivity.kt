@@ -11,6 +11,7 @@ import com.ajcm.chessapp.ui.adapters.BoardAdapter
 import com.ajcm.design.SpanningGridLayoutManager
 import com.ajcm.domain.board.Board
 import com.ajcm.domain.board.Color
+import com.ajcm.domain.board.Position
 import com.ajcm.domain.game.Game
 import com.ajcm.domain.pieces.Piece
 import com.ajcm.domain.players.Player
@@ -27,6 +28,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var boardAdapter: BoardAdapter
     private var lastPieceSelected: Piece? = null
 
+    private val clickPositionListener: (Piece, Player) -> Unit = (::getMovementsOf)
+    private val movedClickListener: (Position, Player) -> Unit = (::makeMovement)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -38,7 +42,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun resetGame() {
         val randomTurn = Random.nextInt(0, 1)
-        println("MainActivity.resetGame --> $randomTurn")
         playerOne = Player(if (randomTurn == 1) Color.WHITE else Color.BLACK)
         playerTwo = Player(if (randomTurn == 1) Color.BLACK else Color.WHITE)
 
@@ -57,36 +60,12 @@ class MainActivity : AppCompatActivity() {
                 GridLayoutManager.HORIZONTAL,
                 false)
 
-            itemAnimator = DefaultItemAnimator()
-
-            adapter = BoardAdapter(game.board.positions, game, { piece, player ->
-                if (lastPieceSelected != piece) {
-                    val moves = piece.getPossibleMovements(player, game)
-                    if (moves.isNotEmpty()) {
-                        boardAdapter.possiblesMoves = moves
-                        lastPieceSelected = piece
-                        return@BoardAdapter
-                    }
-                }
-                clearPossibleMoves()
-            }, { newPosition, player ->
-                lastPieceSelected?.let {
-                    if (!gameSource.isKingEnemy(newPosition, player)) {
-                        gameSource.updateMovement(it, newPosition, player)
-                        boardAdapter.notifyDataSetChanged()
-                        clearPossibleMoves()
-                        gameSource.updateTurn()
-                        if (gameSource.isKingCheckedOf(gameSource.getEnemyOf(player), player)) {
-                            Toast.makeText(this@MainActivity, "King checked", Toast.LENGTH_SHORT).show()
-                            if (gameSource.hasNoOwnMovements(gameSource.getEnemyOf(player), player)) {
-                                Toast.makeText(this@MainActivity, "Jake mate", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    } else {
-                        Toast.makeText(this@MainActivity, "Invalid move - Cannot eat the king", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }) .also { boardAdapter = it }
+            adapter = BoardAdapter(
+                game.board.positions,
+                game,
+                clickPositionListener,
+                movedClickListener
+            ).also { boardAdapter = it }
         }
     }
 
@@ -94,4 +73,36 @@ class MainActivity : AppCompatActivity() {
         boardAdapter.possiblesMoves = emptyList()
         lastPieceSelected = null
     }
+
+    private fun getMovementsOf(piece: Piece, player: Player) {
+        if (lastPieceSelected != piece) {
+            val moves = piece.getPossibleMovements(player, game)
+            if (moves.isNotEmpty()) {
+                boardAdapter.possiblesMoves = moves
+                lastPieceSelected = piece
+                return
+            }
+        }
+        clearPossibleMoves()
+    }
+
+    private fun makeMovement(newPosition: Position, player: Player) {
+        lastPieceSelected?.let {
+            if (!gameSource.isKingEnemy(newPosition, gameSource.getEnemyOf(player))) {
+                gameSource.updateMovement(it, newPosition, player)
+                boardAdapter.notifyDataSetChanged()
+                clearPossibleMoves()
+                if (gameSource.isKingCheckedOf(player, gameSource.getEnemyOf(player))) {
+                    Toast.makeText(this@MainActivity, "King checked", Toast.LENGTH_SHORT).show()
+                    /*if (gameSource.hasNoOwnMovements(gameSource.getEnemyOf(player), player)) {
+                        Toast.makeText(this@MainActivity, "Jake mate", Toast.LENGTH_SHORT).show()
+                    }*/
+                }
+                gameSource.updateTurn()
+            } else {
+                Toast.makeText(this@MainActivity, "Invalid move - Cannot eat the king", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 }
