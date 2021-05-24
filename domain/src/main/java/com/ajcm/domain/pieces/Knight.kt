@@ -19,4 +19,8 @@ class Knight(position: Position, color: Color) : Piece(position, color) {
         return possibleMoves.clean(playerRequest, game)
     }
 
+    override fun clone(): Knight {
+        return Knight(position, color)
+    }
+
 }

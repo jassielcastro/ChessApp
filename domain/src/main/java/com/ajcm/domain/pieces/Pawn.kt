@@ -30,4 +30,8 @@ class Pawn(position: Position, color: Color) : Piece(position, color) {
         return possibleMoves.clean(playerRequest, game)
     }
 
+    override fun clone(): Pawn {
+        return Pawn(position, color)
+    }
+
 }

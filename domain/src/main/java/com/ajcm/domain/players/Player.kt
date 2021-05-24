@@ -8,6 +8,7 @@ data class Player(val color: Color) {
 
     var isMoving: Boolean = false
     val movesMade: MutableList<Movement> = mutableListOf()
+    var isMocked = false
 
     val availablePieces: MutableList<Piece> = mutableListOf(
         Pawn(if (color == Color.WHITE) Pair(1, 2) else Pair(1, 7) , color),
@@ -29,8 +30,21 @@ data class Player(val color: Color) {
     )
 
     init {
-        if (color == Color.WHITE) {
+        if (isPlayerOne()) {
             isMoving = true
         }
+    }
+
+    private fun isPlayerOne() = this.color == Color.WHITE
+
+    fun copy(): Player {
+        val newPlayer = Player(color)
+        newPlayer.availablePieces.clear()
+        availablePieces.map {
+            newPlayer.availablePieces.add(it.clone())
+        }
+        newPlayer.isMoving = isMoving
+        newPlayer.isMocked = true
+        return newPlayer
     }
 }

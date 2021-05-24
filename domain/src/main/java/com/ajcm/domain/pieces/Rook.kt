@@ -11,4 +11,8 @@ class Rook(position: Position, color: Color) : Piece(position, color) {
         return getLinealMovements(playerRequest, game).clean(playerRequest, game)
     }
 
+    override fun clone(): Rook {
+        return Rook(position, color)
+    }
+
 }

@@ -18,4 +18,8 @@ class King(position: Position, color: Color) : Piece(position, color) {
         return possibleMoves.clean(playerRequest, game)
     }
 
+    override fun clone(): King {
+        return King(position, color)
+    }
+
 }

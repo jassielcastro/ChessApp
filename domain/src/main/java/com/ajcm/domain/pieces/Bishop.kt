@@ -11,4 +11,8 @@ class Bishop(position: Position, color: Color) : Piece(position, color) {
         return getDiagonalMovements(playerRequest, game).clean(playerRequest, game)
     }
 
+    override fun clone(): Bishop {
+        return Bishop(position, color)
+    }
+
 }

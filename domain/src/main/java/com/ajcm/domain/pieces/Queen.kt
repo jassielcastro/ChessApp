@@ -14,4 +14,8 @@ class Queen(position: Position, color: Color) : Piece(position, color) {
         return possibleMoves.clean(playerRequest, game)
     }
 
+    override fun clone(): Queen {
+        return Queen(position, color)
+    }
+
 }

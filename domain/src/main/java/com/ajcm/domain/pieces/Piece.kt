@@ -11,6 +11,8 @@ abstract class Piece(position: Position, val color: Color) : Coordinate(position
 
     private val initialPosition: Position = position
 
+    val name: String = this::class.java.simpleName
+
     fun isFirstMovement(): Boolean = this.initialPosition == position
 
     abstract fun getPossibleMovements(playerRequest: Player, game: Game): List<Position>
@@ -62,4 +64,5 @@ abstract class Piece(position: Position, val color: Color) : Coordinate(position
         return possibleMoves
     }
 
+    abstract fun clone(): Piece
 }
