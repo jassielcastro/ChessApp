@@ -1,4 +1,4 @@
-package com.ajcm.chessapp.ui.extensions
+package com.ajcm.chessapp.extensions
 
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView

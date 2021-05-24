@@ -1,4 +1,4 @@
-package com.ajcm.chessapp.ui.extensions
+package com.ajcm.chessapp.extensions
 
 import com.ajcm.chessapp.R
 import com.ajcm.domain.board.Color

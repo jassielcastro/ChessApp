@@ -1,0 +1,11 @@
+ext {
+    app_id = "com.ajcm.chessapp"
+
+    app_version_code = 1
+    app_version_name = "1.0.0"
+
+    target_sdk = 30
+    min_sdk = 22
+
+    build_tools_version = "30.0.3"
+}

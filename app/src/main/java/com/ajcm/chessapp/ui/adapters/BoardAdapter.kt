@@ -5,12 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.ajcm.chessapp.R
-import com.ajcm.chessapp.ui.common.ViewHolder
-import com.ajcm.chessapp.ui.extensions.getImage
+import com.ajcm.design.ViewHolder
+import com.ajcm.chessapp.extensions.getImage
 import com.ajcm.domain.board.Position
 import com.ajcm.domain.game.Game
 import com.ajcm.domain.pieces.Piece
