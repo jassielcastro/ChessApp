@@ -8,7 +8,8 @@ ext {
             lifecycleExtensions: 'android.arch.lifecycle:extensions:2.2.0',
             material           : 'com.google.android.material:material:1.3.0',
             navigation_fragment: 'androidx.navigation:navigation-fragment-ktx:2.3.5',
-            navigation_ui      : 'androidx.navigation:navigation-ui-ktx:2.3.5'
+            navigation_ui      : 'androidx.navigation:navigation-ui-ktx:2.3.5',
+            lottie             : 'com.airbnb.android:lottie:3.7.0'
     ]
 
     roomDB = [
@@ -28,7 +29,8 @@ ext {
     ]
 
     injection = [
-            koin: "org.koin:koin-android-viewmodel:2.2.3"
+            koin_android: "io.insert-koin:koin-androidx-scope:$koin_version",
+            koin_view_model: "io.insert-koin:koin-androidx-viewmodel:$koin_version"
     ]
 
     testing = [

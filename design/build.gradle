@@ -4,6 +4,8 @@ plugins {
 }
 
 android {
+    compileSdkVersion target_sdk
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -18,4 +20,5 @@ dependencies {
     implementation kotlinLibs.values()
     implementation androidLibs.values()
     implementation coroutines.values()
+    api injection.values()
 }

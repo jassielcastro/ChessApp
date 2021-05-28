@@ -2,6 +2,7 @@
 buildscript {
 
     ext.kotlin_version = "1.4.32"
+    ext.koin_version = "2.2.3"
     apply from: 'common-libs.gradle'
     apply from: 'app-config.gradle'
 
@@ -16,9 +17,14 @@ buildscript {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 allprojects {
     repositories {
         google()
+        mavenCentral()
         jcenter()
     }
 }

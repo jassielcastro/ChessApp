@@ -30,7 +30,7 @@ class BoardAdapter(private var positionList: List<Position>, private val game: G
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val currentPosition = positionList[holder.adapterPosition]
+        val currentPosition = positionList[holder.bindingAdapterPosition]
 
         with(holder.itemView) {
             val bg = findViewById<View>(R.id.bgItem)
