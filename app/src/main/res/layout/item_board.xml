@@ -23,8 +23,8 @@
 
     <View
         android:id="@+id/bgPossibleMove"
-        android:layout_width="12dp"
-        android:layout_height="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:background="@drawable/possible_move_selector"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
