@@ -9,7 +9,6 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="@drawable/board_border"
         android:layout_margin="8dp"
         android:padding="2dp">
 
