@@ -4,7 +4,7 @@
     <item>
         <shape android:shape="rectangle">
 
-            <corners android:radius="6dp" />
+            <corners android:radius="4dp" />
 
             <solid android:color="@android:color/transparent"/>
 
@@ -19,7 +19,7 @@
 
         <shape android:shape="rectangle">
 
-            <corners android:radius="6dp" />
+            <corners android:radius="4dp" />
             <stroke android:width="3dp" android:color="@color/king_checked_color" />
 
         </shape>
