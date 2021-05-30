@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.ajcm.chessapp.R
 import com.ajcm.chessapp.databinding.GameFragmentBinding
@@ -11,6 +12,7 @@ import com.ajcm.chessapp.ui.adapters.BoardAdapter
 import com.ajcm.design.SpanningGridLayoutManager
 import com.ajcm.design.archi.BaseFragment
 import com.ajcm.domain.board.Board
+import com.ajcm.domain.board.Color
 import com.ajcm.domain.board.Position
 import com.ajcm.domain.game.Game
 import com.ajcm.domain.players.Player
@@ -46,8 +48,18 @@ class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout
         }
     }
 
-    private fun showNewTurn(playerMoving: Player) {
-        println("GameFragment.showNewTurn --> $playerMoving")
+    private fun showNewTurn(playerMoving: Player) = with(binding) {
+        if (playerMoving.color == Color.WHITE) {
+            txtPlayerWhite.text = getText(R.string.title_your_turn)
+            txtPlayerBlack.text = getText(R.string.title_waiting)
+            txtPlayerWhite.background = ContextCompat.getDrawable(requireContext(), R.drawable.turn_on_background)
+            txtPlayerBlack.background = ContextCompat.getDrawable(requireContext(), R.drawable.turn_off_background)
+        } else {
+            txtPlayerWhite.text = getText(R.string.title_waiting)
+            txtPlayerBlack.text = getText(R.string.title_your_turn)
+            txtPlayerWhite.background = ContextCompat.getDrawable(requireContext(), R.drawable.turn_off_background)
+            txtPlayerBlack.background = ContextCompat.getDrawable(requireContext(), R.drawable.turn_on_background)
+        }
     }
 
     private fun showCheckmate() {

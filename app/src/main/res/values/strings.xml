@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ChessApp</string>
+    <string name="title_your_turn">Tu turno</string>
+    <string name="title_waiting">En espera</string>
 </resources>

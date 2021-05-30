@@ -64,8 +64,12 @@ class BoardAdapter(
         if (possiblesMoves.contains(currentPosition)) {
             possibleView.visibility = View.VISIBLE
             possibleView.background = pieceOnBoard?.let {
-                ContextCompat.getDrawable(possibleView.context, R.drawable.possible_move_checked)
-            } ?: ContextCompat.getDrawable(possibleView.context, R.drawable.possible_move_selector)
+                ContextCompat.getDrawable(possibleView.context, R.drawable.possible_move_checked).also {
+                    possibleView.alpha = 0.6f
+                }
+            } ?: ContextCompat.getDrawable(possibleView.context, R.drawable.possible_move_selector).also {
+                possibleView.alpha = 1f
+            }
         } else {
             possibleView.visibility = View.GONE
         }
