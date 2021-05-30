@@ -16,4 +16,6 @@
     <color name="black_piece_color">#2C2A60</color>
     <color name="black_piece_color_shadow">#4c59a8</color>
 
+    <color name="king_checked_color">#f94144</color>
+
 </resources>

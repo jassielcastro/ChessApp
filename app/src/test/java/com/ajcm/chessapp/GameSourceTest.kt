@@ -59,7 +59,7 @@ class GameSourceTest {
     @Test
     fun `update movements`() {
         assertTrue(game.existPieceOn(Position(3, 1), game.whoIsMoving()))
-        gameRepositoryTest.updateMovement(Bishop(Position(3, 1), Color.WHITE), Position(5, 3), game.whoIsMoving())
+        gameRepositoryTest.updateMovement(Bishop(Position(3, 1), Color.WHITE), Position(5, 3), game.whoIsMoving(), game)
         assertTrue(game.existPieceOn(Position(5, 3), game.whoIsMoving()))
         assertEquals(game.whoIsMoving().movesMade.size, 1)
     }
@@ -67,7 +67,7 @@ class GameSourceTest {
     @Test
     fun `update movements and check enemy`() {
         assertTrue(game.existPieceOn(Position(3, 1), game.whoIsMoving()))
-        gameRepositoryTest.updateMovement(Bishop(Position(3, 1), Color.WHITE), Position(5, 3), game.whoIsMoving())
+        gameRepositoryTest.updateMovement(Bishop(Position(3, 1), Color.WHITE), Position(5, 3), game.whoIsMoving(), game)
         assertTrue(game.existPieceOn(Position(5, 3), game.whoIsMoving()))
         gameRepositoryTest.updateTurn()
         assertTrue(game.existPieceOn(Position(5, 3), game.getEnemyOf(game.whoIsMoving())))
@@ -147,7 +147,7 @@ class GameSourceTest {
 
     @Test
     fun `check some King movement 2`() {
-        gameRepositoryTest.updateMovement(Pawn(Position(5, 7), Color.BLACK), Position(5, 6), game.getEnemyOf(game.whoIsMoving()))
+        gameRepositoryTest.updateMovement(Pawn(Position(5, 7), Color.BLACK), Position(5, 6), game.getEnemyOf(game.whoIsMoving()), game)
         val firstKingMoves = King(Position(5, 8), Color.BLACK).getPossibleMovements(game.getEnemyOf(game.whoIsMoving()), game)
         assertEquals(firstKingMoves.size, 1)
     }
@@ -155,38 +155,38 @@ class GameSourceTest {
     @Test
     fun `is King checked initially`() {
         // initial move for WHITE
-        assertFalse(gameRepositoryTest.isKingCheckedOf(gameRepositoryTest.getEnemyOf(game.whoIsMoving()), game.whoIsMoving()))
+        assertFalse(gameRepositoryTest.isKingCheckedOf(gameRepositoryTest.getEnemyOf(game.whoIsMoving(), game), game.whoIsMoving(), game))
         // initial move for BLACK
-        assertFalse(gameRepositoryTest.isKingCheckedOf(game.whoIsMoving(), gameRepositoryTest.getEnemyOf(game.whoIsMoving())))
+        assertFalse(gameRepositoryTest.isKingCheckedOf(game.whoIsMoving(), gameRepositoryTest.getEnemyOf(game.whoIsMoving(), game), game))
     }
 
     @Test
     fun `is King checked`() {
-        gameRepositoryTest.updateMovement(Knight(Position(2, 1), Color.WHITE), Position(4, 6), playerOne)
+        gameRepositoryTest.updateMovement(Knight(Position(2, 1), Color.WHITE), Position(4, 6), playerOne, game)
         assertTrue(game.existPieceOn(Position(4, 6), playerOne))
         gameRepositoryTest.updateTurn()
-        assertTrue(gameRepositoryTest.isKingCheckedOf(game.whoIsMoving(), gameRepositoryTest.getEnemyOf(game.whoIsMoving())))
+        assertTrue(gameRepositoryTest.isKingCheckedOf(game.whoIsMoving(), gameRepositoryTest.getEnemyOf(game.whoIsMoving(), game), game))
     }
 
     @Test
     fun `is King dead`() {
-        gameRepositoryTest.updateMovement(Knight(Position(2, 1), Color.WHITE), Position(4, 6), playerOne)
+        gameRepositoryTest.updateMovement(Knight(Position(2, 1), Color.WHITE), Position(4, 6), playerOne, game)
         assertTrue(game.existPieceOn(Position(4, 6), playerOne))
         gameRepositoryTest.updateTurn()
-        val isChecked = gameRepositoryTest.isKingCheckedOf(game.whoIsMoving(), gameRepositoryTest.getEnemyOf(game.whoIsMoving()))
-        val isDead = gameRepositoryTest.hasNoOwnMovements(game.whoIsMoving(), gameRepositoryTest.getEnemyOf(game.whoIsMoving()))
+        val isChecked = gameRepositoryTest.isKingCheckedOf(game.whoIsMoving(), gameRepositoryTest.getEnemyOf(game.whoIsMoving(), game), game)
+        val isDead = gameRepositoryTest.hasNoOwnMovements(game.whoIsMoving(), gameRepositoryTest.getEnemyOf(game.whoIsMoving(), game), game)
         assertTrue(isChecked && isDead)
     }
 
     @Test
     fun `is King is checked but with moves`() {
-        gameRepositoryTest.updateMovement(Knight(Position(2, 1), Color.WHITE), Position(4, 6), playerOne)
+        gameRepositoryTest.updateMovement(Knight(Position(2, 1), Color.WHITE), Position(4, 6), playerOne, game)
         gameRepositoryTest.updateTurn()
-        gameRepositoryTest.updateMovement(Knight(Position(5, 7), Color.BLACK), Position(5, 6), playerTwo)
+        gameRepositoryTest.updateMovement(Knight(Position(5, 7), Color.BLACK), Position(5, 6), playerTwo, game)
 
-        val isChecked = gameRepositoryTest.isKingCheckedOf(game.whoIsMoving(), gameRepositoryTest.getEnemyOf(game.whoIsMoving()))
+        val isChecked = gameRepositoryTest.isKingCheckedOf(game.whoIsMoving(), gameRepositoryTest.getEnemyOf(game.whoIsMoving(), game), game)
         assertTrue(isChecked)
-        val isDead = gameRepositoryTest.hasNoOwnMovements(game.whoIsMoving(), gameRepositoryTest.getEnemyOf(game.whoIsMoving()))
+        val isDead = gameRepositoryTest.hasNoOwnMovements(game.whoIsMoving(), gameRepositoryTest.getEnemyOf(game.whoIsMoving(), game), game)
         assertFalse(isChecked && isDead)
     }
 }
