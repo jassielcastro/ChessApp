@@ -16,6 +16,7 @@ import com.ajcm.domain.board.Color
 import com.ajcm.domain.board.Position
 import com.ajcm.domain.game.Game
 import com.ajcm.domain.players.Player
+import com.tapadoo.alerter.Alerter
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout.game_fragment) {
@@ -63,15 +64,33 @@ class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout
     }
 
     private fun showCheckmate() {
-        println("GameFragment.showCheckmate")
+        showAlert("Game finished!") {
+            viewModel.dispatch(GameAction.Reset)
+        }
     }
 
     private fun showKingChecked() {
-        println("GameFragment.showKingChecked")
+        showAlert("King checked!")
     }
 
     private fun showInvalidMove() {
-        println("GameFragment.showInvalidMove")
+        showAlert("Invalid movement...")
+    }
+
+    private fun showAlert(title: String, completion: (() -> Unit)? = null) {
+        activity?.let {
+            if (!Alerter.isShowing) {
+                Alerter.create(it)
+                    .setText(title)
+                    .setBackgroundColorRes(R.color.colorPrimaryVariant_100)
+                    .setDuration(10_000)
+                    .setDismissable(true)
+                    .setOnHideListener {
+                        completion?.invoke()
+                    }
+                    .show()
+            }
+        }
     }
 
     private fun showPossibleMoves(moves: List<Position>) {

@@ -42,4 +42,8 @@ ext {
             espresso: 'androidx.test.espresso:espresso-core:3.3.0'
     ]
 
+    aleter = [
+            tapadoo: 'com.github.tapadoo:alerter:7.1.0'
+    ]
+
 }

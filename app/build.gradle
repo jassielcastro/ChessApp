@@ -42,6 +42,7 @@ dependencies {
     implementation project(":design")
     implementation kotlinLibs.values()
     implementation androidLibs.values()
+    implementation aleter.values()
     implementation testing.values()
     implementation testImplementation.values()
 }
