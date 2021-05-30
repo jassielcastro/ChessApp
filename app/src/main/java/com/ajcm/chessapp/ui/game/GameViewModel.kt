@@ -64,16 +64,11 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
         if (lastPieceSelected != piece) {
             val moves = piece.getPossibleMovements(player, game)
             val validMoves = mutableListOf<Position>()
-            if (isKingChecked(gameSource.getEnemyOf(player, game))) {
-                for (position in moves) {
-                    if (!gameSource.isValidMadeFakeMovement(piece.position, position, gameSource.getEnemyOf(player, game), player, game)) {
-                        validMoves.add(position)
-                    }
+            for (position in moves) {
+                if (!gameSource.isValidMadeFakeMovement(piece.position, position, gameSource.getEnemyOf(player, game), player, game)) {
+                    validMoves.add(position)
                 }
-            } else {
-                validMoves.addAll(moves)
             }
-
             if (validMoves.isNotEmpty()) {
                 lastPieceSelected = piece
                 consume(GameState.ShowPossibleMoves(validMoves))
