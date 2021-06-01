@@ -114,7 +114,6 @@ class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout
 
     private fun setAdapter(game: Game) = with(binding.gridBoard) {
         adapter = BoardAdapter(
-            game.board.positions,
             game,
             viewModel.clickPositionListener,
             viewModel.movedClickListener

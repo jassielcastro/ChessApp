@@ -10,7 +10,7 @@ class Pawn(position: Position, color: Color) : Piece(position, color) {
     override fun getPossibleMovements(playerRequest: Player, game: Game): List<Position> {
         val isFirstMovement = isFirstMovement()
         val possibleMoves = mutableListOf<Position>()
-        val enemy = game.getEnemyOf(playerRequest)
+        val enemy = game.enemyOf(playerRequest)
         val direction = if (color == Color.WHITE) 1 else -1
         if (isFirstMovement && !game.existPieceOn(next(0, 1 * direction), enemy)
             && !game.existPieceOn(next(0, 2 * direction), enemy)) {

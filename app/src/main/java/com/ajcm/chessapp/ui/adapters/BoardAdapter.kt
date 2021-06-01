@@ -11,12 +11,10 @@ import com.ajcm.chessapp.extensions.getImage
 import com.ajcm.design.ViewHolder
 import com.ajcm.domain.board.Position
 import com.ajcm.domain.game.Game
-import com.ajcm.domain.pieces.King
 import com.ajcm.domain.pieces.Piece
 import com.ajcm.domain.players.Player
 
 class BoardAdapter(
-    private var positionList: List<Position>,
     private val game: Game,
     private val onClickListener: (Piece, Player) -> Unit,
     private val onMoveClickListener: (Position, Player) -> Unit,
@@ -35,7 +33,7 @@ class BoardAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val currentPosition = positionList[holder.bindingAdapterPosition]
+        val currentPosition = game.getBoard().positions[holder.bindingAdapterPosition]
 
         with(holder.itemView) {
             val bg = findViewById<View>(R.id.bgItem)
@@ -87,5 +85,5 @@ class BoardAdapter(
         }
     }
 
-    override fun getItemCount(): Int = positionList.size
+    override fun getItemCount(): Int = game.getBoard().positions.size
 }

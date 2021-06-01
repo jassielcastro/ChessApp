@@ -24,7 +24,7 @@ abstract class Piece(position: Position, val color: Color) : Coordinate(position
 
     fun List<Position>.clean(player: Player, game: Game): List<Position> {
         return this.filter {
-            !game.existPieceOn(it, player) && game.board.containPosition(it)
+            !game.existPieceOn(it, player) && game.getBoard().containPosition(it)
         }
     }
 
@@ -35,7 +35,7 @@ abstract class Piece(position: Position, val color: Color) : Coordinate(position
                 val newPosition = next(d.first * position, d.second * position)
                 if (!game.existPieceOn(newPosition, playerRequest)) {
                     possibleMoves.add(newPosition)
-                    if (game.existPieceOn(newPosition, game.getEnemyOf(playerRequest))) {
+                    if (game.existPieceOn(newPosition, game.enemyOf(playerRequest))) {
                         break
                     }
                 } else {
@@ -53,7 +53,7 @@ abstract class Piece(position: Position, val color: Color) : Coordinate(position
                 val newPosition = next(d.first * position, d.second * position)
                 if (!game.existPieceOn(newPosition, playerRequest)) {
                     possibleMoves.add(newPosition)
-                    if (game.existPieceOn(newPosition, game.getEnemyOf(playerRequest))) {
+                    if (game.existPieceOn(newPosition, game.enemyOf(playerRequest))) {
                         break
                     }
                 } else {

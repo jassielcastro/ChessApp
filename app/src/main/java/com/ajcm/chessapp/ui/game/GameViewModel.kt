@@ -20,7 +20,6 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
     private lateinit var playerOne: Player
     private lateinit var playerTwo: Player
     private lateinit var game: Game
-    private lateinit var gameSource: GameSourceImpl
 
     private var lastPieceSelected: Piece? = null
 
@@ -40,8 +39,8 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
     }
 
     private fun updateTurn() {
-        gameSource.updateTurn()
-        consume(GameState.ShowNewTurn(gameSource.whoIsMoving(game)))
+        game.updateTurn()
+        consume(GameState.ShowNewTurn(game.whoIsMoving()))
     }
 
     private fun resetGame() {
@@ -49,8 +48,7 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
         playerOne = Player(if (randomTurn == 1) Color.WHITE else Color.BLACK)
         playerTwo = Player(if (randomTurn == 1) Color.BLACK else Color.WHITE)
 
-        game = Game(playerOne, playerTwo, Board())
-        gameSource = GameSourceImpl(game)
+        game = GameSourceImpl(playerOne, playerTwo, Board())
 
         consume(GameState.CreateGame(game))
     }
@@ -65,7 +63,7 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
             val moves = piece.getPossibleMovements(player, game)
             val validMoves = mutableListOf<Position>()
             for (position in moves) {
-                if (!gameSource.isValidMadeFakeMovement(piece.position, position, gameSource.getEnemyOf(player, game), player, game)) {
+                if (!game.isValidMadeFakeMovement(piece.position, position, game.enemyOf(player))) {
                     validMoves.add(position)
                 }
             }
@@ -80,12 +78,12 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
 
     private fun makeMovement(newPosition: Position, player: Player) {
         lastPieceSelected?.let {
-            if (!gameSource.isKingEnemy(newPosition, gameSource.getEnemyOf(player, game))) {
-                gameSource.updateMovement(it, newPosition, player, game)
+            if (!game.isKingEnemy(newPosition, game.enemyOf(player))) {
+                game.updateMovement(it, newPosition, player)
                 clearPossibleMoves()
                 if (isKingChecked(player)) {
                     consume(GameState.KingChecked)
-                    if (gameSource.hasNoOwnMovements(player, gameSource.getEnemyOf(player, game), game)) {
+                    if (game.hasNoOwnMovements(player, game.enemyOf(player))) {
                         consume(GameState.Checkmate)
                     }
                 }
@@ -97,6 +95,6 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
     }
 
     private fun isKingChecked(player: Player): Boolean {
-        return gameSource.isKingCheckedOf(player, gameSource.getEnemyOf(player, game), game)
+        return game.isKingCheckedOf(player, game.enemyOf(player))
     }
 }

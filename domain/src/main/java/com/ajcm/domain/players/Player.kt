@@ -1,14 +1,13 @@
 package com.ajcm.domain.players
 
 import com.ajcm.domain.board.Color
-import com.ajcm.domain.game.Movement
+import com.ajcm.domain.board.Movement
 import com.ajcm.domain.pieces.*
 
 data class Player(val color: Color) {
 
     var isMoving: Boolean = false
     val movesMade: MutableList<Movement> = mutableListOf()
-    var isMocked = false
 
     val availablePieces: MutableList<Piece> = mutableListOf(
         Pawn(if (color == Color.WHITE) Pair(1, 2) else Pair(1, 7) , color),
@@ -30,12 +29,10 @@ data class Player(val color: Color) {
     )
 
     init {
-        if (isPlayerOne()) {
+        if (this.color == Color.WHITE) {
             isMoving = true
         }
     }
-
-    private fun isPlayerOne() = this.color == Color.WHITE
 
     fun copy(): Player {
         val newPlayer = Player(color)
@@ -44,7 +41,6 @@ data class Player(val color: Color) {
             newPlayer.availablePieces.add(it.clone())
         }
         newPlayer.isMoving = isMoving
-        newPlayer.isMocked = true
         return newPlayer
     }
 }

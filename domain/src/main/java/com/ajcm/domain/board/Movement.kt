@@ -1,6 +1,5 @@
-package com.ajcm.domain.game
+package com.ajcm.domain.board
 
-import com.ajcm.domain.board.Position
 import com.ajcm.domain.pieces.Piece
 
 typealias Removed = Pair<Piece, Position>
