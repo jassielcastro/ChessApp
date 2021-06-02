@@ -16,7 +16,7 @@ interface Game {
     fun isKingEnemy(position: Position, enemyPlayer: Player): Boolean
 
     fun hasNoOwnMovements(playerRequest: Player, playerWaiting: Player): Boolean
-    fun isKingCheckedOf(playerRequest: Player, playerWaiting: Player): Boolean
+    fun isKingCheckedOf(playerRequest: Player, playerWaiting: Player, game: Game? = null): Boolean
 
     fun getPiecesOnBord(position: Position): Piece?
     fun getBoard(): Board

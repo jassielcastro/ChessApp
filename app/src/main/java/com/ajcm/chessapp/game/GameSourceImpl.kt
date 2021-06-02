@@ -60,10 +60,10 @@ class GameSourceImpl(private val playerOne: Player, private val playerTwo: Playe
         }.flatten().all { it }
     }
 
-    override fun isKingCheckedOf(playerRequest: Player, playerWaiting: Player): Boolean {
+    override fun isKingCheckedOf(playerRequest: Player, playerWaiting: Player, game: Game?): Boolean {
         val kingPosition = getKingPositionFrom(playerWaiting)
         return playerRequest.availablePieces.any {
-            it.getPossibleMovements(playerRequest, this).contains(kingPosition)
+            it.getPossibleMovements(playerRequest, game ?: this).contains(kingPosition)
         }
     }
 
@@ -77,13 +77,19 @@ class GameSourceImpl(private val playerOne: Player, private val playerTwo: Playe
 
         val mockedPiece = getChessPieceFrom(player, currentPosition) ?: return false
 
+        val mockedGame = GameSourceImpl(
+            if (player.color == playerOne.color) player else enemyPlayerCopy,
+            if (player.color == playerOne.color) enemyPlayerCopy else player,
+            board
+        )
+
         mockedPiece.position = newPosition
         if (existPieceOn(newPosition, enemyPlayerCopy) && !isKingEnemy(newPosition, enemyPlayerCopy)) {
             getChessPieceFrom(enemyPlayerCopy, newPosition)?.let { piece ->
                 enemyPlayerCopy.availablePieces.remove(piece)
             }
         }
-        return isKingCheckedOf(enemyPlayerCopy, player)
+        return isKingCheckedOf(enemyPlayerCopy, player, mockedGame)
     }
 
     override fun getPiecesOnBord(position: Position): Piece? =
