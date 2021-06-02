@@ -9,6 +9,6 @@ abstract class Coordinate(var position: Position) {
         listOf(Position(-1, 0), Position(0, 1), Position(1, 0), Position(0, -1))
     }
 
-    fun getX() = position.first
-    fun getY() = position.second
+    fun getX() = position.x
+    fun getY() = position.y
 }

@@ -49,7 +49,7 @@ class BoardAdapter(
             checkPossibleMoves(currentPosition, possibleView, pieceOnBoard)
             addClickListener(imgPiece, currentPosition)
 
-            if ((currentPosition.first + currentPosition.second) % 2 == 0) {
+            if ((currentPosition.x + currentPosition.y) % 2 == 0) {
                 bg.setBackgroundResource(R.drawable.white_board_piece)
             } else {
                 bg.setBackgroundResource(R.drawable.black_board_piece)

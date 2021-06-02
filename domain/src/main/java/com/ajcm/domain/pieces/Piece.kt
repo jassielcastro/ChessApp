@@ -32,7 +32,7 @@ abstract class Piece(position: Position, val color: Color) : Coordinate(position
         val possibleMoves = mutableListOf<Position>()
         for (d in diagonalMoves) {
             for (position in 1..Board.CELL_COUNT) {
-                val newPosition = next(d.first * position, d.second * position)
+                val newPosition = next(d.x * position, d.y * position)
                 if (!game.existPieceOn(newPosition, playerRequest)) {
                     possibleMoves.add(newPosition)
                     if (game.existPieceOn(newPosition, game.enemyOf(playerRequest))) {
@@ -50,7 +50,7 @@ abstract class Piece(position: Position, val color: Color) : Coordinate(position
         val possibleMoves = mutableListOf<Position>()
         for (d in linealMoves) {
             for (position in 1..Board.CELL_COUNT) {
-                val newPosition = next(d.first * position, d.second * position)
+                val newPosition = next(d.x * position, d.y * position)
                 if (!game.existPieceOn(newPosition, playerRequest)) {
                     possibleMoves.add(newPosition)
                     if (game.existPieceOn(newPosition, game.enemyOf(playerRequest))) {

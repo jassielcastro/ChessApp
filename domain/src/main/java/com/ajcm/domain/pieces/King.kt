@@ -13,7 +13,7 @@ class King(position: Position, color: Color) : Piece(position, color) {
         directions.addAll(diagonalMoves)
         directions.addAll(linealMoves)
         for (direction in directions) {
-            possibleMoves.add(next(direction.first, direction.second))
+            possibleMoves.add(next(direction.x, direction.y))
         }
         return possibleMoves.clean(playerRequest, game)
     }
