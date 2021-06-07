@@ -17,6 +17,8 @@ abstract class Piece(position: Position, val color: Color) : Coordinate(position
 
     abstract fun getPossibleMovements(playerRequest: Player, game: Game): List<Position>
 
+    open fun getSpecialMoves(playerRequest: Player, game: Game): List<Position> = emptyList()
+
     fun next(sumX: Int, sumY: Int) = Position(
         this.getX() + sumX,
         this.getY() + sumY
