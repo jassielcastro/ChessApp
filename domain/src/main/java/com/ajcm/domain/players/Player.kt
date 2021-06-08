@@ -9,7 +9,7 @@ data class Player(val color: Color) {
 
     var isMoving: Boolean = false
 
-    /*val availablePieces: MutableList<Piece> = mutableListOf(
+    val availablePieces: MutableList<Piece> = mutableListOf(
         Pawn(if (color == Color.WHITE) Position(1, 2) else Position(1, 7) , color),
         Pawn(if (color == Color.WHITE) Position(2, 2) else Position(2, 7) , color),
         Pawn(if (color == Color.WHITE) Position(3, 2) else Position(3, 7) , color),
@@ -26,17 +26,6 @@ data class Player(val color: Color) {
         Rook(if (color == Color.WHITE) Position(8, 1) else Position(8, 8) , color),
         Queen(if (color == Color.WHITE) Position(4, 1) else Position(4, 8) , color),
         King(if (color == Color.WHITE) Position(5, 1) else Position(5, 8) , color)
-    )*/
-
-    val availablePieces: MutableList<Piece> = mutableListOf(
-        Pawn(if (color == Color.WHITE) Position(1, 2) else Position(1, 7) , color),
-        Pawn(if (color == Color.WHITE) Position(2, 2) else Position(2, 7) , color),
-        Pawn(if (color == Color.WHITE) Position(3, 2) else Position(3, 7) , color),
-        Pawn(if (color == Color.WHITE) Position(4, 2) else Position(4, 7) , color),
-        Pawn(if (color == Color.WHITE) Position(5, 2) else Position(5, 7) , color),
-        Pawn(if (color == Color.WHITE) Position(6, 2) else Position(6, 7) , color),
-        Pawn(if (color == Color.WHITE) Position(7, 2) else Position(7, 7) , color),
-        Pawn(if (color == Color.WHITE) Position(8, 2) else Position(8, 7) , color)
     )
 
     init {
