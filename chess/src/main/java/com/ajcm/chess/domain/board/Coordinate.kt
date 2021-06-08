@@ -1,4 +1,4 @@
-package com.ajcm.domain.board
+package com.ajcm.chess.domain.board
 
 abstract class Coordinate(var position: Position) {
 

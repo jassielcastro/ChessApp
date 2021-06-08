@@ -1,9 +1,7 @@
-package com.ajcm.domain.players
+package com.ajcm.chess.domain
 
-import com.ajcm.domain.board.Color
-import com.ajcm.domain.board.Movement
-import com.ajcm.domain.board.Position
-import com.ajcm.domain.pieces.*
+import com.ajcm.chess.domain.board.Position
+import com.ajcm.chess.domain.piece.*
 
 data class Player(val color: Color) {
 

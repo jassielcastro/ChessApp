@@ -6,17 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
+import com.ajcm.chess.domain.Color
+import com.ajcm.chess.domain.Player
+import com.ajcm.chess.domain.board.Board
+import com.ajcm.chess.domain.board.Position
+import com.ajcm.chess.domain.piece.Piece
 import com.ajcm.chessapp.R
 import com.ajcm.chessapp.databinding.GameFragmentBinding
 import com.ajcm.chessapp.ui.adapters.BoardAdapter
 import com.ajcm.design.SpanningGridLayoutManager
 import com.ajcm.design.archi.BaseFragment
-import com.ajcm.domain.board.Board
-import com.ajcm.domain.board.Color
-import com.ajcm.domain.board.Position
-import com.ajcm.domain.game.Game
-import com.ajcm.domain.pieces.Piece
-import com.ajcm.domain.players.Player
 import com.tapadoo.alerter.Alerter
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -122,7 +121,7 @@ class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout
         }
     }
 
-    private fun setAdapter(game: Game) = with(binding.gridBoard) {
+    private fun setAdapter(game: com.ajcm.chess.data.Game) = with(binding.gridBoard) {
         adapter = BoardAdapter(
             game,
             viewModel.clickPositionListener,

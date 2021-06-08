@@ -1,11 +1,11 @@
-package com.ajcm.domain.pieces
+package com.ajcm.chess.domain.piece
 
-import com.ajcm.domain.board.Board
-import com.ajcm.domain.board.Color
-import com.ajcm.domain.board.Coordinate
-import com.ajcm.domain.board.Position
-import com.ajcm.domain.game.Game
-import com.ajcm.domain.players.Player
+import com.ajcm.chess.data.Game
+import com.ajcm.chess.domain.Color
+import com.ajcm.chess.domain.Player
+import com.ajcm.chess.domain.board.Board
+import com.ajcm.chess.domain.board.Coordinate
+import com.ajcm.chess.domain.board.Position
 
 abstract class Piece(position: Position, val color: Color) : Coordinate(position) {
 

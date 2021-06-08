@@ -1,9 +1,9 @@
-package com.ajcm.domain.game
+package com.ajcm.chess.data
 
-import com.ajcm.domain.board.Board
-import com.ajcm.domain.board.Position
-import com.ajcm.domain.pieces.Piece
-import com.ajcm.domain.players.Player
+import com.ajcm.chess.domain.Player
+import com.ajcm.chess.domain.board.Board
+import com.ajcm.chess.domain.board.Position
+import com.ajcm.chess.domain.piece.Piece
 
 interface Game {
     fun updateMovement(chessPiece: Piece, newPosition: Position, playerRequest: Player)

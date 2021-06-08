@@ -1,10 +1,10 @@
 package com.ajcm.chessapp
 
-import com.ajcm.chessapp.game.GameSourceImpl
+import com.ajcm.chess.game.GameSourceImpl
 import com.ajcm.domain.board.Board
 import com.ajcm.domain.board.Color
 import com.ajcm.domain.board.Position
-import com.ajcm.domain.game.Game
+import com.ajcm.chess.data.Game
 import com.ajcm.domain.pieces.*
 import com.ajcm.domain.players.Player
 import org.junit.Assert.*
@@ -17,7 +17,8 @@ class GameSourceTest {
 
     private val playerOne = Player(Color.WHITE)
     private val playerTwo = Player(Color.BLACK)
-    private val game: Game = GameSourceImpl(playerOne, playerTwo, Board())
+    private val game: com.ajcm.chess.data.Game =
+        com.ajcm.chess.game.GameSourceImpl(playerOne, playerTwo, Board())
 
     @Test
     fun `check who is moving`() {

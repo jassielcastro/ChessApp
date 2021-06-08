@@ -21,7 +21,7 @@ ext {
     ]
 
     kotlinLibs = [
-            stdlib    : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+            stdlib    : "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     ]
 
     coroutines = [

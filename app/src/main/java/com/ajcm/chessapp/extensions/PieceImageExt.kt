@@ -1,8 +1,8 @@
 package com.ajcm.chessapp.extensions
 
+import com.ajcm.chess.domain.Color
+import com.ajcm.chess.domain.piece.*
 import com.ajcm.chessapp.R
-import com.ajcm.domain.board.Color
-import com.ajcm.domain.pieces.*
 
 fun Piece.getImage(): Int = when (this) {
     is Bishop -> if (this.color == Color.BLACK) R.drawable.ic_bishop_black else R.drawable.ic_bishop_white

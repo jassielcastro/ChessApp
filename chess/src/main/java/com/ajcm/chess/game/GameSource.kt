@@ -1,13 +1,13 @@
-package com.ajcm.chessapp.game
+package com.ajcm.chess.game
 
-import com.ajcm.domain.board.Board
-import com.ajcm.domain.board.Position
-import com.ajcm.domain.game.Game
-import com.ajcm.domain.pieces.King
-import com.ajcm.domain.pieces.Piece
-import com.ajcm.domain.players.Player
+import com.ajcm.chess.data.Game
+import com.ajcm.chess.domain.Player
+import com.ajcm.chess.domain.board.Board
+import com.ajcm.chess.domain.board.Position
+import com.ajcm.chess.domain.piece.King
+import com.ajcm.chess.domain.piece.Piece
 
-class GameSourceImpl(private val playerOne: Player, private val playerTwo: Player, private val board: Board) : Game {
+class GameSource(private val playerOne: Player, private val playerTwo: Player, private val board: Board) : Game {
 
     override fun updateMovement(chessPiece: Piece, newPosition: Position, playerRequest: Player) {
         chessPiece.position = newPosition
@@ -54,7 +54,7 @@ class GameSourceImpl(private val playerOne: Player, private val playerTwo: Playe
         }.flatten().all { it }
     }
 
-    override fun isKingCheckedOf(playerRequest: Player, playerWaiting: Player, game: Game?): Boolean {
+    override fun isKingCheckedOf(playerRequest: Player, playerWaiting: Player, game: com.ajcm.chess.data.Game?): Boolean {
         val kingPosition = getKingPositionFrom(playerWaiting)
         return playerRequest.availablePieces.any {
             it.getPossibleMovements(playerRequest, game ?: this).contains(kingPosition)
@@ -71,7 +71,7 @@ class GameSourceImpl(private val playerOne: Player, private val playerTwo: Playe
 
         val mockedPiece = getChessPieceFrom(player, currentPosition) ?: return false
 
-        val mockedGame = GameSourceImpl(
+        val mockedGame = GameSource(
             if (player.color == playerOne.color) player else enemyPlayerCopy,
             if (player.color == playerOne.color) enemyPlayerCopy else player,
             board

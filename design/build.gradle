@@ -16,7 +16,6 @@ android {
 }
 
 dependencies {
-    implementation project(":domain")
     implementation kotlinLibs.values()
     implementation androidLibs.values()
     implementation coroutines.values()

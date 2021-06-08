@@ -1,14 +1,14 @@
 package com.ajcm.chessapp.ui.game
 
 import androidx.lifecycle.LiveData
-import com.ajcm.chessapp.game.GameSourceImpl
+import com.ajcm.chess.data.Game
+import com.ajcm.chess.domain.Color
+import com.ajcm.chess.domain.Player
+import com.ajcm.chess.domain.board.Board
+import com.ajcm.chess.domain.board.Position
+import com.ajcm.chess.domain.piece.*
+import com.ajcm.chess.game.GameSource
 import com.ajcm.design.archi.ScopedViewModel
-import com.ajcm.domain.board.Board
-import com.ajcm.domain.board.Color
-import com.ajcm.domain.board.Position
-import com.ajcm.domain.game.Game
-import com.ajcm.domain.pieces.*
-import com.ajcm.domain.players.Player
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlin.random.Random
 
@@ -67,7 +67,7 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
         playerOne = Player(if (randomTurn == 1) Color.WHITE else Color.BLACK)
         playerTwo = Player(if (randomTurn == 1) Color.BLACK else Color.WHITE)
 
-        game = GameSourceImpl(playerOne, playerTwo, Board())
+        game = GameSource(playerOne, playerTwo, Board())
 
         consume(GameState.CreateGame(game))
     }

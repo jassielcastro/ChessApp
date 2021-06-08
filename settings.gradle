@@ -1,4 +1,4 @@
+include ':chess'
 include ':design'
-include ':domain'
 include ':app'
 rootProject.name = "ChessApp"
