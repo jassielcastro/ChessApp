@@ -21,10 +21,6 @@ class King(position: Position, color: Color) : Piece(position, color) {
     }
 
     override fun getSpecialMoves(playerRequest: Player, game: Game): List<Position> {
-        if (game.isKingCheckedOf(playerRequest, game.enemyOf(playerRequest))) {
-            return emptyList()
-        }
-
         if (!isFirstMovement()) {
             return emptyList()
         }
@@ -39,7 +35,7 @@ class King(position: Position, color: Color) : Piece(position, color) {
             return emptyList()
         }
 
-        if (!game.isValidMadeFakeMovement(position, Position(7, getSpecialY()), playerRequest)) {
+        if (game.isValidMadeFakeMovement(position, Position(7, getSpecialY()), playerRequest)) {
             return emptyList()
         }
 

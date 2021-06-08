@@ -7,6 +7,7 @@ import com.ajcm.domain.board.Board
 import com.ajcm.domain.board.Color
 import com.ajcm.domain.board.Position
 import com.ajcm.domain.game.Game
+import com.ajcm.domain.pieces.King
 import com.ajcm.domain.pieces.Piece
 import com.ajcm.domain.players.Player
 import kotlinx.coroutines.CoroutineDispatcher
@@ -79,6 +80,13 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
     private fun makeMovement(newPosition: Position, player: Player) {
         lastPieceSelected?.let {
             if (!game.isKingEnemy(newPosition, game.enemyOf(player))) {
+                if (it is King && newPosition.x == 7) {
+                    // Castling movement
+                    val y = if (player.color == Color.WHITE) 1 else 8
+                    game.getChessPieceFrom(player, Position(8, y))?.let { rook ->
+                        game.updateMovement(rook, Position(6, y), player)
+                    }
+                }
                 game.updateMovement(it, newPosition, player)
                 clearPossibleMoves()
                 if (isKingChecked(player)) {
