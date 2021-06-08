@@ -7,8 +7,7 @@ import com.ajcm.domain.board.Board
 import com.ajcm.domain.board.Color
 import com.ajcm.domain.board.Position
 import com.ajcm.domain.game.Game
-import com.ajcm.domain.pieces.King
-import com.ajcm.domain.pieces.Piece
+import com.ajcm.domain.pieces.*
 import com.ajcm.domain.players.Player
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlin.random.Random
@@ -35,8 +34,27 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
         when(actionState) {
             GameAction.Init -> consume(GameState.SetUpViews)
             GameAction.Reset -> resetGame()
+            GameAction.CheckKingStatus -> checkKingStatus(game.whoIsMoving())
             GameAction.UpdateTurn -> updateTurn()
+            is GameAction.ChangePawnPieceFor -> changePawnPiece(actionState.newPiece, actionState.currentPiece)
         }
+    }
+
+    private fun changePawnPiece(newPiece: PawnTransform, currentPiece: Piece) {
+        val piece = when (newPiece) {
+            PawnTransform.BISHOP -> Bishop(currentPiece.position, currentPiece.color)
+            PawnTransform.KNIGHT -> Knight(currentPiece.position, currentPiece.color)
+            PawnTransform.QUEEN -> Queen(currentPiece.position, currentPiece.color)
+            PawnTransform.ROOK -> Rook(currentPiece.position, currentPiece.color)
+        }
+
+        with(game.whoIsMoving().availablePieces) {
+            remove(currentPiece)
+            add(piece)
+        }
+
+        consume(GameState.UpdateNewPieces)
+        consume(GameState.MoveFinished)
     }
 
     private fun updateTurn() {
@@ -89,17 +107,25 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
                 }
                 game.updateMovement(it, newPosition, player)
                 clearPossibleMoves()
-                if (isKingChecked(player)) {
-                    consume(GameState.KingChecked)
-                    if (game.hasNoOwnMovements(player, game.enemyOf(player))) {
-                        consume(GameState.Checkmate)
-                    }
+                if (it.canConvertPiece()) {
+                    consume(GameState.ConvertPawnPiece(it))
+                    return
                 }
                 consume(GameState.MoveFinished)
             } else {
                 consume(GameState.InvalidMove)
             }
         }
+    }
+
+    private fun checkKingStatus(player: Player) {
+        if (isKingChecked(player)) {
+            consume(GameState.KingChecked)
+            if (game.hasNoOwnMovements(player, game.enemyOf(player))) {
+                consume(GameState.Checkmate)
+            }
+        }
+        consume(GameState.ShouldUpdateTurn)
     }
 
     private fun isKingChecked(player: Player): Boolean {

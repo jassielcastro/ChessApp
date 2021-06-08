@@ -1,10 +1,8 @@
 package com.ajcm.chessapp.game
 
-import com.ajcm.domain.game.Game
 import com.ajcm.domain.board.Board
-import com.ajcm.domain.board.Movement
 import com.ajcm.domain.board.Position
-import com.ajcm.domain.board.Removed
+import com.ajcm.domain.game.Game
 import com.ajcm.domain.pieces.King
 import com.ajcm.domain.pieces.Piece
 import com.ajcm.domain.players.Player
@@ -12,19 +10,15 @@ import com.ajcm.domain.players.Player
 class GameSourceImpl(private val playerOne: Player, private val playerTwo: Player, private val board: Board) : Game {
 
     override fun updateMovement(chessPiece: Piece, newPosition: Position, playerRequest: Player) {
-        val movement = Movement(chessPiece)
         chessPiece.position = newPosition
-        movement.position = newPosition
 
         enemyOf(playerRequest).apply {
             if (existPieceOn(newPosition, this) && !isKingEnemy(newPosition, this)) {
                 getChessPieceFrom(this, newPosition)?.let { piece ->
                     availablePieces.remove(piece)
-                    movement.removedEnemy = Removed(piece, newPosition)
                 }
             }
         }
-        playerRequest.movesMade.add(movement)
     }
 
     override fun enemyOf(playerRequest: Player): Player = if (playerRequest.color == playerOne.color) playerTwo else playerOne

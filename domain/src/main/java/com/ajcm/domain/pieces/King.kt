@@ -16,30 +16,30 @@ class King(position: Position, color: Color) : Piece(position, color) {
             possibleMoves.add(next(direction.x, direction.y))
         }
 
-        possibleMoves.addAll(getSpecialMoves(playerRequest, game))
+        getSpecialMove(playerRequest, game)?.let { possibleMoves.add(it) }
         return possibleMoves.clean(playerRequest, game)
     }
 
-    override fun getSpecialMoves(playerRequest: Player, game: Game): List<Position> {
+    override fun getSpecialMove(playerRequest: Player, game: Game): Position? {
         if (!isFirstMovement()) {
-            return emptyList()
+            return null
         }
 
         val rook = getSpecialRook(playerRequest)
 
         if (rook == null || !rook.isFirstMovement()) {
-            return emptyList()
+            return null
         }
 
         if (existPieceOn(6, playerRequest, game) || existPieceOn(7, playerRequest, game)) {
-            return emptyList()
+            return null
         }
 
         if (game.isValidMadeFakeMovement(position, Position(7, getSpecialY()), playerRequest)) {
-            return emptyList()
+            return null
         }
 
-        return listOf(Position(7, getSpecialY())) // Castling movement
+        return Position(7, getSpecialY()) // Castling movement
     }
 
     private fun existPieceOn(x: Int, playerRequest: Player, game: Game): Boolean {

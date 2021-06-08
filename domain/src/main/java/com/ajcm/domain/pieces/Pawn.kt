@@ -24,22 +24,26 @@ class Pawn(position: Position, color: Color) : Piece(position, color) {
             possibleMoves.add(next(1, 1 * direction))
         }
 
-        possibleMoves.addAll(getSpecialMoves(playerRequest, game))
+        getSpecialMove(playerRequest, game)?.let { possibleMoves.add(it) }
         return possibleMoves.clean(playerRequest, game)
     }
 
-    override fun getSpecialMoves(playerRequest: Player, game: Game): List<Position> {
+    override fun getSpecialMove(playerRequest: Player, game: Game): Position? {
         val isFirstMovement = isFirstMovement()
-        val possibleMoves = mutableListOf<Position>()
         val enemy = game.enemyOf(playerRequest)
         val direction = getDirection()
 
         if (isFirstMovement && !game.existPieceOn(next(0, 1 * direction), enemy)
             && !game.existPieceOn(next(0, 2 * direction), enemy)) {
-            possibleMoves.add(next(0, 2 * direction))
+            return next(0, 2 * direction)
         }
 
-        return possibleMoves
+        return null
+    }
+
+    override fun canConvertPiece(): Boolean {
+        val enemyYBaseLine = if (color == Color.WHITE) 8 else 1
+        return position.y == enemyYBaseLine
     }
 
     private fun getDirection() = if (color == Color.WHITE) 1 else -1

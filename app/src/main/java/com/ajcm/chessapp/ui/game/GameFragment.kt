@@ -15,6 +15,7 @@ import com.ajcm.domain.board.Board
 import com.ajcm.domain.board.Color
 import com.ajcm.domain.board.Position
 import com.ajcm.domain.game.Game
+import com.ajcm.domain.pieces.Piece
 import com.ajcm.domain.players.Player
 import com.tapadoo.alerter.Alerter
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -44,8 +45,17 @@ class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout
             GameState.InvalidMove -> showInvalidMove()
             GameState.KingChecked -> showKingChecked()
             GameState.Checkmate -> showCheckmate()
-            GameState.MoveFinished -> viewModel.dispatch(GameAction.UpdateTurn)
+            GameState.MoveFinished -> viewModel.dispatch(GameAction.CheckKingStatus)
+            GameState.ShouldUpdateTurn -> viewModel.dispatch(GameAction.UpdateTurn)
+            is GameState.ConvertPawnPiece -> showListOfPossibleChanges(state.pawn)
+            GameState.UpdateNewPieces -> boardAdapter.notifyDataSetChanged()
             is GameState.ShowNewTurn -> showNewTurn(state.playerMoving)
+        }
+    }
+
+    private fun showListOfPossibleChanges(pawn: Piece) {
+        showAlert("Pawn ready to transform!") {
+            viewModel.dispatch(GameAction.ChangePawnPieceFor(PawnTransform.QUEEN, pawn))
         }
     }
 

@@ -4,12 +4,15 @@ import com.ajcm.design.archi.ActionState
 import com.ajcm.design.archi.UiState
 import com.ajcm.domain.board.Position
 import com.ajcm.domain.game.Game
+import com.ajcm.domain.pieces.Piece
 import com.ajcm.domain.players.Player
 
 sealed class GameAction : ActionState {
     object Init : GameAction()
     object Reset : GameAction()
     object UpdateTurn : GameAction()
+    object CheckKingStatus : GameAction()
+    data class ChangePawnPieceFor(val newPiece: PawnTransform, val currentPiece: Piece): GameAction()
 }
 
 sealed class GameState : UiState {
@@ -19,6 +22,13 @@ sealed class GameState : UiState {
     object InvalidMove : GameState()
     object KingChecked : GameState()
     object Checkmate : GameState()
+    data class ConvertPawnPiece(val pawn: Piece): GameState()
+    object UpdateNewPieces : GameState()
     object MoveFinished : GameState()
+    object ShouldUpdateTurn : GameState()
     data class ShowNewTurn(val playerMoving: Player) : GameState()
+}
+
+enum class PawnTransform {
+    BISHOP, KNIGHT, QUEEN, ROOK
 }

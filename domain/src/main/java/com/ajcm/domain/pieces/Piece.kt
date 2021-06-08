@@ -9,7 +9,7 @@ import com.ajcm.domain.players.Player
 
 abstract class Piece(position: Position, val color: Color) : Coordinate(position) {
 
-    private val initialPosition: Position = position
+    val initialPosition: Position = position
 
     val name: String = this::class.java.simpleName
 
@@ -17,7 +17,9 @@ abstract class Piece(position: Position, val color: Color) : Coordinate(position
 
     abstract fun getPossibleMovements(playerRequest: Player, game: Game): List<Position>
 
-    open fun getSpecialMoves(playerRequest: Player, game: Game): List<Position> = emptyList()
+    open fun getSpecialMove(playerRequest: Player, game: Game): Position? = null
+
+    open fun canConvertPiece(): Boolean = false
 
     fun next(sumX: Int, sumY: Int) = Position(
         this.getX() + sumX,
