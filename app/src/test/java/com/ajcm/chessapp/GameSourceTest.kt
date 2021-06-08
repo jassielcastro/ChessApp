@@ -1,12 +1,12 @@
 package com.ajcm.chessapp
 
-import com.ajcm.chess.game.GameSourceImpl
-import com.ajcm.domain.board.Board
-import com.ajcm.domain.board.Color
-import com.ajcm.domain.board.Position
 import com.ajcm.chess.data.Game
-import com.ajcm.domain.pieces.*
-import com.ajcm.domain.players.Player
+import com.ajcm.chess.domain.Color
+import com.ajcm.chess.domain.Player
+import com.ajcm.chess.domain.board.Board
+import com.ajcm.chess.domain.board.Position
+import com.ajcm.chess.domain.piece.*
+import com.ajcm.chess.game.GameSource
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,8 +17,7 @@ class GameSourceTest {
 
     private val playerOne = Player(Color.WHITE)
     private val playerTwo = Player(Color.BLACK)
-    private val game: com.ajcm.chess.data.Game =
-        com.ajcm.chess.game.GameSourceImpl(playerOne, playerTwo, Board())
+    private val game: Game = GameSource(playerOne, playerTwo, Board())
 
     @Test
     fun `check who is moving`() {
@@ -58,18 +57,23 @@ class GameSourceTest {
     @Test
     fun `update movements`() {
         assertTrue(game.existPieceOn(Position(3, 1), game.whoIsMoving()))
-        game.updateMovement(Bishop(Position(3, 1), Color.WHITE), Position(5, 3), game.whoIsMoving())
-        assertTrue(game.existPieceOn(Position(5, 3), game.whoIsMoving()))
-        assertEquals(game.whoIsMoving().movesMade.size, 1)
+        val piece = game.getChessPieceFrom(game.whoIsMoving(), Position(3, 1))
+        piece?.let {
+            game.updateMovement(it, Position(5, 3), game.whoIsMoving())
+            assertTrue(game.existPieceOn(Position(5, 3), game.whoIsMoving()))
+        }
     }
 
     @Test
     fun `update movements and check enemy`() {
         assertTrue(game.existPieceOn(Position(3, 1), game.whoIsMoving()))
-        game.updateMovement(Bishop(Position(3, 1), Color.WHITE), Position(5, 3), game.whoIsMoving())
-        assertTrue(game.existPieceOn(Position(5, 3), game.whoIsMoving()))
-        game.updateTurn()
-        assertTrue(game.existPieceOn(Position(5, 3), game.enemyOf(game.whoIsMoving())))
+        val piece = game.getChessPieceFrom(game.whoIsMoving(), Position(3, 1))
+        piece?.let {
+            game.updateMovement(it, Position(5, 3), game.whoIsMoving())
+            assertTrue(game.existPieceOn(Position(5, 3), game.whoIsMoving()))
+            game.updateTurn()
+            assertTrue(game.existPieceOn(Position(5, 3), game.enemyOf(game.whoIsMoving())))
+        }
     }
 
     @Test
@@ -145,13 +149,6 @@ class GameSourceTest {
     }
 
     @Test
-    fun `check some King movement 2`() {
-        game.updateMovement(Pawn(Position(5, 7), Color.BLACK), Position(5, 6), game.enemyOf(game.whoIsMoving()))
-        val firstKingMoves = King(Position(5, 8), Color.BLACK).getPossibleMovements(game.enemyOf(game.whoIsMoving()), game)
-        assertEquals(firstKingMoves.size, 1)
-    }
-
-    @Test
     fun `is King checked initially`() {
         // initial move for WHITE
         assertFalse(game.isKingCheckedOf(game.enemyOf(game.whoIsMoving()), game.whoIsMoving(), game))
@@ -161,31 +158,13 @@ class GameSourceTest {
 
     @Test
     fun `is King checked`() {
-        game.updateMovement(Knight(Position(2, 1), Color.WHITE), Position(4, 6), playerOne)
-        assertTrue(game.existPieceOn(Position(4, 6), playerOne))
-        game.updateTurn()
-        assertTrue(game.isKingCheckedOf(game.whoIsMoving(), game.enemyOf(game.whoIsMoving()), game))
+        val piece = game.getChessPieceFrom(playerOne, Position(2, 1))
+        piece?.let {
+            game.updateMovement(it, Position(4, 6), playerOne)
+            assertTrue(game.existPieceOn(Position(4, 6), playerOne))
+            game.updateTurn()
+            assertTrue(game.isKingCheckedOf(playerOne, playerTwo, game))
+        }
     }
 
-    @Test
-    fun `is King dead`() {
-        game.updateMovement(Knight(Position(2, 1), Color.WHITE), Position(4, 6), playerOne)
-        assertTrue(game.existPieceOn(Position(4, 6), playerOne))
-        game.updateTurn()
-        val isChecked = game.isKingCheckedOf(game.whoIsMoving(), game.enemyOf(game.whoIsMoving()), game)
-        val isDead = game.hasNoOwnMovements(game.whoIsMoving(), game.enemyOf(game.whoIsMoving()))
-        assertTrue(isChecked && isDead)
-    }
-
-    @Test
-    fun `is King is checked but with moves`() {
-        game.updateMovement(Knight(Position(2, 1), Color.WHITE), Position(4, 6), playerOne)
-        game.updateTurn()
-        game.updateMovement(Knight(Position(5, 7), Color.BLACK), Position(5, 6), playerTwo)
-
-        val isChecked = game.isKingCheckedOf(game.whoIsMoving(), game.enemyOf(game.whoIsMoving()), game)
-        assertTrue(isChecked)
-        val isDead = game.hasNoOwnMovements(game.whoIsMoving(), game.enemyOf(game.whoIsMoving()))
-        assertFalse(isChecked && isDead)
-    }
 }
