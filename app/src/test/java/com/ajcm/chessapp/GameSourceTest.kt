@@ -78,73 +78,73 @@ class GameSourceTest {
 
     @Test
     fun `check initial White Pawn movement`() {
-        val firstPawnMoves = playerOne.availablePieces[0].getPossibleMovements(playerOne, game)
+        val firstPawnMoves = playerOne.availablePieces[0].getPossibleMoves(playerOne, game)
         assertTrue(firstPawnMoves.size == 2)
     }
 
     @Test
     fun `check initial Black Pawn movement`() {
-        val firstPawnMoves = playerTwo.availablePieces[0].getPossibleMovements(playerTwo, game)
+        val firstPawnMoves = playerTwo.availablePieces[0].getPossibleMoves(playerTwo, game)
         assertTrue(firstPawnMoves.size == 2)
     }
 
     @Test
     fun `check initial Knight movement`() {
-        val firstKnightMoves = playerOne.availablePieces[10].getPossibleMovements(playerOne, game)
+        val firstKnightMoves = playerOne.availablePieces[10].getPossibleMoves(playerOne, game)
         assertEquals(firstKnightMoves.size, 2)
     }
 
     @Test
     fun `check all Knight movement`() {
-        val firstKnightMoves = Knight(Position(5, 5), Color.WHITE).getPossibleMovements(playerOne, game)
+        val firstKnightMoves = Knight(Position(5, 5), Color.WHITE).getPossibleMoves(playerOne, game)
         assertEquals(firstKnightMoves.size, 8)
     }
 
     @Test
     fun `check initial Bishop movement`() {
-        val firstBishopMoves = Bishop(Position(3, 1), Color.WHITE).getPossibleMovements(playerOne, game)
+        val firstBishopMoves = Bishop(Position(3, 1), Color.WHITE).getPossibleMoves(playerOne, game)
         assertEquals(firstBishopMoves.size, 0)
     }
 
     @Test
     fun `check some Bishop movement`() {
-        val firstBishopMoves = Bishop(Position(4, 4), Color.WHITE).getPossibleMovements(playerOne, game)
+        val firstBishopMoves = Bishop(Position(4, 4), Color.WHITE).getPossibleMoves(playerOne, game)
         assertEquals(firstBishopMoves.size, 8)
     }
 
     @Test
     fun `check initial Rook movement`() {
-        val firstRookMoves = Rook(Position(1, 1), Color.WHITE).getPossibleMovements(playerOne, game)
+        val firstRookMoves = Rook(Position(1, 1), Color.WHITE).getPossibleMoves(playerOne, game)
         assertEquals(firstRookMoves.size, 0)
     }
 
     @Test
     fun `check some Rook movement`() {
-        val firstRookMoves = Rook(Position(4, 5), Color.WHITE).getPossibleMovements(playerOne, game)
+        val firstRookMoves = Rook(Position(4, 5), Color.WHITE).getPossibleMoves(playerOne, game)
         assertEquals(firstRookMoves.size, 11)
     }
 
     @Test
     fun `check initial Queen movement`() {
-        val firstQueenMoves = Queen(Position(4, 1), Color.WHITE).getPossibleMovements(playerOne, game)
+        val firstQueenMoves = Queen(Position(4, 1), Color.WHITE).getPossibleMoves(playerOne, game)
         assertEquals(firstQueenMoves.size, 0)
     }
 
     @Test
     fun `check some Queen movement`() {
-        val firstQueenMoves = Queen(Position(5, 4), Color.WHITE).getPossibleMovements(playerOne, game)
+        val firstQueenMoves = Queen(Position(5, 4), Color.WHITE).getPossibleMoves(playerOne, game)
         assertEquals(firstQueenMoves.size, 19)
     }
 
     @Test
     fun `check initial King movement`() {
-        val firstKingMoves = King(Position(5, 1), Color.WHITE).getPossibleMovements(playerOne, game)
+        val firstKingMoves = King(Position(5, 1), Color.WHITE).getPossibleMoves(playerOne, game)
         assertEquals(firstKingMoves.size, 0)
     }
 
     @Test
     fun `check some King movement`() {
-        val firstKingMoves = King(Position(5, 4), Color.WHITE).getPossibleMovements(playerOne, game)
+        val firstKingMoves = King(Position(5, 4), Color.WHITE).getPossibleMoves(playerOne, game)
         assertEquals(firstKingMoves.size, 8)
     }
 

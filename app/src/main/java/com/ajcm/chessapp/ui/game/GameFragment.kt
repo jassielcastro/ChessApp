@@ -10,6 +10,8 @@ import com.ajcm.chess.domain.Color
 import com.ajcm.chess.domain.Player
 import com.ajcm.chess.domain.board.Board
 import com.ajcm.chess.domain.board.Position
+import com.ajcm.chess.domain.piece.Pawn
+import com.ajcm.chess.domain.piece.PawnTransform
 import com.ajcm.chess.domain.piece.Piece
 import com.ajcm.chessapp.R
 import com.ajcm.chessapp.databinding.GameFragmentBinding
@@ -52,7 +54,7 @@ class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout
         }
     }
 
-    private fun showListOfPossibleChanges(pawn: Piece) {
+    private fun showListOfPossibleChanges(pawn: Pawn) {
         showAlert("Pawn ready to transform!") {
             viewModel.dispatch(GameAction.ChangePawnPieceFor(PawnTransform.QUEEN, pawn))
         }

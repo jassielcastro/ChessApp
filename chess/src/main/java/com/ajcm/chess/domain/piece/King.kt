@@ -7,7 +7,7 @@ import com.ajcm.chess.domain.board.Position
 
 class King(position: Position, color: Color) : Piece(position, color) {
 
-    override fun getPossibleMovements(playerRequest: Player, game: Game): List<Position> {
+    override fun getAllPossibleMovements(playerRequest: Player, game: Game): List<Position> {
         val possibleMoves = mutableListOf<Position>()
         val directions = mutableListOf<Position>()
         directions.addAll(diagonalMoves)
@@ -17,7 +17,7 @@ class King(position: Position, color: Color) : Piece(position, color) {
         }
 
         getSpecialMove(playerRequest, game)?.let { possibleMoves.add(it) }
-        return possibleMoves.clean(playerRequest, game)
+        return possibleMoves.removeInvalidMoves(playerRequest, game)
     }
 
     override fun getSpecialMove(playerRequest: Player, game: Game): Position? {

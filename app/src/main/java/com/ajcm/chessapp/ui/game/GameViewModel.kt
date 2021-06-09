@@ -40,18 +40,8 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
         }
     }
 
-    private fun changePawnPiece(newPiece: PawnTransform, currentPiece: Piece) {
-        val piece = when (newPiece) {
-            PawnTransform.BISHOP -> Bishop(currentPiece.position, currentPiece.color)
-            PawnTransform.KNIGHT -> Knight(currentPiece.position, currentPiece.color)
-            PawnTransform.QUEEN -> Queen(currentPiece.position, currentPiece.color)
-            PawnTransform.ROOK -> Rook(currentPiece.position, currentPiece.color)
-        }
-
-        with(game.whoIsMoving().availablePieces) {
-            remove(currentPiece)
-            add(piece)
-        }
+    private fun changePawnPiece(newPawn: PawnTransform, currentPawn: Pawn) {
+        game.convert(currentPawn, newPawn)
 
         consume(GameState.UpdateNewPieces)
         consume(GameState.MoveFinished)
@@ -79,16 +69,10 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
 
     private fun getMovementsOf(piece: Piece, player: Player) {
         if (lastPieceSelected != piece) {
-            val moves = piece.getPossibleMovements(player, game)
-            val validMoves = mutableListOf<Position>()
-            for (position in moves) {
-                if (!game.isValidMadeFakeMovement(piece.position, position, game.enemyOf(player))) {
-                    validMoves.add(position)
-                }
-            }
-            if (validMoves.isNotEmpty()) {
+            val moves = piece.getPossibleMoves(player, game)
+            if (moves.isNotEmpty()) {
                 lastPieceSelected = piece
-                consume(GameState.ShowPossibleMoves(validMoves))
+                consume(GameState.ShowPossibleMoves(moves))
                 return
             }
         }
@@ -97,18 +81,11 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
 
     private fun makeMovement(newPosition: Position, player: Player) {
         lastPieceSelected?.let {
-            if (!game.isKingEnemy(newPosition, game.enemyOf(player))) {
-                if (it is King && newPosition.x == 7) {
-                    // Castling movement
-                    val y = if (player.color == Color.WHITE) 1 else 8
-                    game.getChessPieceFrom(player, Position(8, y))?.let { rook ->
-                        game.updateMovement(rook, Position(6, y), player)
-                    }
-                }
+            if (!game.isKingEnemyOn(newPosition, game.enemyOf(player))) {
                 game.updateMovement(it, newPosition, player)
                 clearPossibleMoves()
                 if (it.canConvertPiece()) {
-                    consume(GameState.ConvertPawnPiece(it))
+                    consume(GameState.ConvertPawnPiece(it as Pawn))
                     return
                 }
                 consume(GameState.MoveFinished)
@@ -119,7 +96,7 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
     }
 
     private fun checkKingStatus(player: Player) {
-        if (isKingChecked(player)) {
+        if (game.isKingCheckedOf(player, game.enemyOf(player))) {
             consume(GameState.KingChecked)
             if (game.hasNoOwnMovements(player, game.enemyOf(player))) {
                 consume(GameState.Checkmate)
@@ -128,7 +105,4 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
         consume(GameState.ShouldUpdateTurn)
     }
 
-    private fun isKingChecked(player: Player): Boolean {
-        return game.isKingCheckedOf(player, game.enemyOf(player))
-    }
 }

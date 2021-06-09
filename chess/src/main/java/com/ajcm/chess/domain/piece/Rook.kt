@@ -7,8 +7,8 @@ import com.ajcm.chess.domain.board.Position
 
 class Rook(position: Position, color: Color) : Piece(position, color) {
 
-    override fun getPossibleMovements(playerRequest: Player, game: Game): List<Position> {
-        return getLinealMovements(playerRequest, game).clean(playerRequest, game)
+    override fun getAllPossibleMovements(playerRequest: Player, game: Game): List<Position> {
+        return getLinealMovements(playerRequest, game).removeInvalidMoves(playerRequest, game)
     }
 
     override fun clone(): Rook {

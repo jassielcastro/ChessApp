@@ -9,30 +9,41 @@ import com.ajcm.chess.domain.board.Position
 
 abstract class Piece(position: Position, val color: Color) : Coordinate(position) {
 
-    val initialPosition: Position = position
+    private val initialPosition: Position = position
 
     val name: String = this::class.java.simpleName
 
     fun isFirstMovement(): Boolean = this.initialPosition == position
 
-    abstract fun getPossibleMovements(playerRequest: Player, game: Game): List<Position>
+    internal abstract fun getAllPossibleMovements(playerRequest: Player, game: Game): List<Position>
 
-    open fun getSpecialMove(playerRequest: Player, game: Game): Position? = null
+    fun getPossibleMoves(playerRequest: Player, game: Game): List<Position> {
+        val moves = this.getAllPossibleMovements(playerRequest, game)
+        val validMoves = mutableListOf<Position>()
+        for (position in moves) {
+            if (!game.isValidMadeFakeMovement(this.position, position, game.enemyOf(playerRequest))) {
+                validMoves.add(position)
+            }
+        }
+        return validMoves.toList()
+    }
+
+    internal open fun getSpecialMove(playerRequest: Player, game: Game): Position? = null
 
     open fun canConvertPiece(): Boolean = false
 
-    fun next(sumX: Int, sumY: Int) = Position(
+    internal fun next(sumX: Int, sumY: Int) = Position(
         this.getX() + sumX,
         this.getY() + sumY
     )
 
-    fun List<Position>.clean(player: Player, game: Game): List<Position> {
+    internal fun List<Position>.removeInvalidMoves(player: Player, game: Game): List<Position> {
         return this.filter {
             !game.existPieceOn(it, player) && game.getBoard().containPosition(it)
         }
     }
 
-    fun getDiagonalMovements(playerRequest: Player, game: Game): List<Position> {
+    internal fun getDiagonalMovements(playerRequest: Player, game: Game): List<Position> {
         val possibleMoves = mutableListOf<Position>()
         for (d in diagonalMoves) {
             for (position in 1..Board.CELL_COUNT) {
@@ -50,7 +61,7 @@ abstract class Piece(position: Position, val color: Color) : Coordinate(position
         return possibleMoves
     }
 
-    fun getLinealMovements(playerRequest: Player, game: Game): List<Position> {
+    internal fun getLinealMovements(playerRequest: Player, game: Game): List<Position> {
         val possibleMoves = mutableListOf<Position>()
         for (d in linealMoves) {
             for (position in 1..Board.CELL_COUNT) {
@@ -68,5 +79,5 @@ abstract class Piece(position: Position, val color: Color) : Coordinate(position
         return possibleMoves
     }
 
-    abstract fun clone(): Piece
+    internal abstract fun clone(): Piece
 }
