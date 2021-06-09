@@ -1,0 +1,8 @@
+maven {
+    name = "GitHubPackages"
+    url = uri("https://maven.pkg.github.com/${project.findProperty("dev.id")}/${project.findProperty("git.bucket")}")
+    credentials {
+        username = "${github.user}"
+        password = "${github.token}"
+    }
+}

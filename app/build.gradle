@@ -36,8 +36,19 @@ android {
     }
 }
 
+repositories {
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/${project.findProperty("dev.id")}/${project.findProperty("git.bucket")}")
+        credentials {
+            username = "${github.user}"
+            password = "${github.token}"
+        }
+    }
+}
+
 dependencies {
-    implementation 'com.ajcm.chess:chess-core:0.1.0'
+    implementation 'com.ajcm.chess:core:0.1.0'
     implementation project(":design")
     implementation kotlinLibs.values()
     implementation androidLibs.values()
