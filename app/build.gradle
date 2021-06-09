@@ -37,7 +37,7 @@ android {
 }
 
 dependencies {
-    implementation project(":chess")
+    implementation 'com.ajcm.chess:chess-core:0.1.0'
     implementation project(":design")
     implementation kotlinLibs.values()
     implementation androidLibs.values()
