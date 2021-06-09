@@ -1,0 +1,86 @@
+apply plugin: "maven-publish"
+
+def pomConfig = {
+    licenses {
+        license {
+            name "The Apache Software License, Version 2.0"
+            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            id project.findProperty("dev.id")
+            name project.findProperty("dev.name")
+            email project.findProperty("dev.email")
+        }
+    }
+
+    scm {
+        url project.findProperty("pom.scm")
+    }
+}
+
+publishing {
+    project.afterEvaluate {
+        if (!plugins.hasPlugin("android")) {
+            publications {
+                mavenJava(MavenPublication) {
+                    artifact bundleReleaseAar
+                    groupId project.findProperty("pom.group")
+                    artifactId project.findProperty("pom.artifact")
+                    version project.findProperty("pom.version")
+                    pom.withXml {
+                        def root = asNode()
+                        root.appendNode('description', project.findProperty("pom.description"))
+                        root.appendNode('name', project.findProperty("pom.name"))
+                        root.appendNode('url', project.findProperty("pom.scm"))
+                        root.children().last() + pomConfig
+                        def dependenciesNode = asNode().appendNode('dependencies')
+                        //Iterate over the compile dependencies (we don't want the test ones), adding a <dependency> node for each
+                        dependenciesToBePackaged()*.each {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', it.group)
+                            dependencyNode.appendNode('artifactId', it.name)
+                            dependencyNode.appendNode('version', it.version)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+gradle.afterProject { graph ->
+    publishing {
+        repositories {
+            if (project.gradle.startParameter.taskNames =~ "publishLocal") {
+                mavenLocal()
+            } else {
+                maven {
+                    name = project.findProperty("pom.artifact")
+                    url = uri("https://maven.pkg.github.com/${project.findProperty("dev.id")}/${project.findProperty("git.bucket")}")
+                    credentials {
+                        username = "${github.user}"
+                        password = "${github.token}"
+                    }
+                }
+            }
+        }
+    }
+}
+
+def dependenciesToBePackaged() {
+    return configurations.all
+            .findAll {
+                !it.name.matches(/.*[tT]est.*/) && it.hierarchy.any {
+                    it.name.matches(/.*(compile|ReleaseCompile)/) && !it.name.matches(/.*[tT]est.*/)
+                }
+            }
+            .collectMany { it.allDependencies }
+            .findAll { it.version }
+            .unique(false)
+}
+
+task publishLocal
+publishLocal.dependsOn 'publish'

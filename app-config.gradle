@@ -2,10 +2,22 @@ ext {
     app_id = "com.ajcm.chessapp"
 
     app_version_code = 1
-    app_version_name = "1.0.0"
+    app_version_name = "0.1.0"
 
     target_sdk = 30
     min_sdk = 22
 
     build_tools_version = "30.0.3"
 }
+
+def localProperties = new Properties()
+def propsFile = new File('local.properties')
+if (propsFile.exists()) {
+    new File('local.properties').withInputStream {
+        localProperties.load(it)
+    }
+}
+
+ext.github = new Properties()
+ext.github['user'] = localProperties["github.user"] ?: System.getenv("USER") ?: ""
+ext.github['token'] = localProperties["github.token"] ?: System.getenv("TOKEN") ?: ""
