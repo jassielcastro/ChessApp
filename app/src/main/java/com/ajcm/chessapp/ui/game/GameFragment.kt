@@ -12,13 +12,13 @@ import com.ajcm.chess.domain.board.Board
 import com.ajcm.chess.domain.board.Position
 import com.ajcm.chess.domain.piece.Pawn
 import com.ajcm.chess.domain.piece.PawnTransform
-import com.ajcm.chess.domain.piece.Piece
 import com.ajcm.chessapp.R
 import com.ajcm.chessapp.databinding.GameFragmentBinding
 import com.ajcm.chessapp.ui.adapters.BoardAdapter
 import com.ajcm.design.SpanningGridLayoutManager
 import com.ajcm.design.archi.BaseFragment
-import com.tapadoo.alerter.Alerter
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout.game_fragment) {
@@ -88,20 +88,15 @@ class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout
         showAlert("Invalid movement...")
     }
 
-    private fun showAlert(title: String, completion: (() -> Unit)? = null) {
-        activity?.let {
-            if (!Alerter.isShowing) {
-                Alerter.create(it)
-                    .setText(title)
-                    .setBackgroundColorRes(R.color.colorPrimaryVariant_100)
-                    .setDuration(10_000)
-                    .setDismissable(true)
-                    .setOnHideListener {
-                        completion?.invoke()
-                    }
-                    .show()
+    private fun showAlert(title: String, completion: () -> Unit = {}) {
+        val snack = Snackbar.make(binding.rootGameView, title, Snackbar.LENGTH_SHORT)
+        snack.addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
+            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                super.onDismissed(transientBottomBar, event)
+                completion()
             }
-        }
+        })
+        snack.show()
     }
 
     private fun showPossibleMoves(moves: List<Position>) {

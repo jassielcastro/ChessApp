@@ -16,7 +16,6 @@ android {
 }
 
 dependencies {
-    implementation kotlinLibs.values()
     implementation androidLibs.values()
     implementation coroutines.values()
     api injection.values()

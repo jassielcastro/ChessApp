@@ -4,8 +4,8 @@ ext {
     app_version_code = 1
     app_version_name = "0.1.0"
 
-    target_sdk = 30
-    min_sdk = 22
+    target_sdk = 31
+    min_sdk = 16
 
     build_tools_version = "30.0.3"
 }

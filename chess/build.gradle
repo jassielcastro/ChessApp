@@ -26,7 +26,7 @@ android {
 }
 
 dependencies {
-    implementation kotlinLibs.values()
+    implementation coroutines.values()
 }
 
 apply from: "../publish.gradle"
