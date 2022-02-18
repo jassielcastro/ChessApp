@@ -48,11 +48,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.ajcm.chess:core:0.1.0'
+    implementation project(":chess")
     implementation project(":design")
-    implementation kotlinLibs.values()
+    implementation coroutines.values()
     implementation androidLibs.values()
-    implementation aleter.values()
-    implementation testing.values()
-    implementation testImplementation.values()
 }

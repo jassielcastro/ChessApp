@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.ajcm.chessapp.R
 import com.ajcm.chessapp.databinding.SplashFragmentBinding
-import com.ajcm.design.extensions.addOnFinishListener
 import com.ajcm.design.archi.BaseFragment
 import com.ajcm.design.extensions.navigateTo
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -35,13 +34,8 @@ class SplashFragment : BaseFragment<SplashState, SplashAction, SplashViewModel>(
     }
 
     private fun startAnim() {
-        with(binding.splashImage) {
-            addOnFinishListener {
-                this.postDelayed({
-                    viewModel.dispatch(SplashAction.GetNextScreen)
-                }, 500)
-            }
-            playAnimation()
-        }
+        binding.splashImage.postDelayed({
+            viewModel.dispatch(SplashAction.GetNextScreen)
+        }, 500)
     }
 }
