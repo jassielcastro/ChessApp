@@ -1,13 +1,16 @@
 package com.ajcm.chess.game
 
-import com.ajcm.chess.data.Game
-import com.ajcm.chess.domain.Color
-import com.ajcm.chess.domain.Player
-import com.ajcm.chess.domain.board.Board
-import com.ajcm.chess.domain.board.Position
-import com.ajcm.chess.domain.piece.*
+import com.ajcm.chess.board.Color
+import com.ajcm.chess.board.Player
+import com.ajcm.chess.board.Board
+import com.ajcm.chess.board.Position
+import com.ajcm.chess.piece.*
 
-class GameSource(private val playerOne: Player, private val playerTwo: Player, private val board: Board) : Game {
+class GameSource(
+    private val playerOne: Player,
+    private val playerTwo: Player,
+    private val board: Board
+) : Game {
 
     override fun updateMovement(chessPiece: Piece, newPosition: Position, playerRequest: Player) {
         chessPiece.position = newPosition
@@ -30,7 +33,8 @@ class GameSource(private val playerOne: Player, private val playerTwo: Player, p
         }
     }
 
-    override fun enemyOf(playerRequest: Player): Player = if (playerRequest.color == playerOne.color) playerTwo else playerOne
+    override fun enemyOf(playerRequest: Player): Player =
+        if (playerRequest.color == playerOne.color) playerTwo else playerOne
 
     override fun updateTurn() {
         with(whoIsMoving()) {
@@ -47,9 +51,11 @@ class GameSource(private val playerOne: Player, private val playerTwo: Player, p
         availablePieces.map { it.position }.contains(position)
     }
 
-    override fun getChessPieceFrom(player: Player, position: Position): Piece? = player.availablePieces.find { position == it.position }
+    override fun getChessPieceFrom(player: Player, position: Position): Piece? =
+        player.availablePieces.find { position == it.position }
 
-    override fun isKingEnemyOn(position: Position, enemyPlayer: Player): Boolean = getChessPieceFrom(enemyPlayer, position) is King
+    override fun isKingEnemyOn(position: Position, enemyPlayer: Player): Boolean =
+        getChessPieceFrom(enemyPlayer, position) is King
 
     override fun hasNoOwnMovements(playerRequest: Player, playerWaiting: Player): Boolean {
         return playerWaiting.availablePieces.map {
@@ -63,7 +69,11 @@ class GameSource(private val playerOne: Player, private val playerTwo: Player, p
         }.flatten().all { it }
     }
 
-    override fun isKingCheckedOf(playerRequest: Player, playerWaiting: Player, game: com.ajcm.chess.data.Game?): Boolean {
+    override fun isKingCheckedOf(
+        playerRequest: Player,
+        playerWaiting: Player,
+        game: Game?
+    ): Boolean {
         val kingPosition = getKingPositionFrom(playerWaiting)
         return playerRequest.availablePieces.any {
             it.getAllPossibleMovements(playerRequest, game ?: this).contains(kingPosition)
@@ -72,9 +82,14 @@ class GameSource(private val playerOne: Player, private val playerTwo: Player, p
 
     private fun getKingPositionFrom(player: Player): Position? =
         player.availablePieces.filterIsInstance<King>().map {
-            it.position }.firstOrNull()
+            it.position
+        }.firstOrNull()
 
-    override fun isValidMadeFakeMovement(currentPosition: Position, newPosition: Position, playerRequest: Player): Boolean {
+    override fun isValidMadeFakeMovement(
+        currentPosition: Position,
+        newPosition: Position,
+        playerRequest: Player
+    ): Boolean {
         val player = enemyOf(playerRequest).copy()
         val enemyPlayerCopy = playerRequest.copy()
 
@@ -87,7 +102,11 @@ class GameSource(private val playerOne: Player, private val playerTwo: Player, p
         )
 
         mockedPiece.position = newPosition
-        if (existPieceOn(newPosition, enemyPlayerCopy) && !isKingEnemyOn(newPosition, enemyPlayerCopy)) {
+        if (existPieceOn(newPosition, enemyPlayerCopy) && !isKingEnemyOn(
+                newPosition,
+                enemyPlayerCopy
+            )
+        ) {
             getChessPieceFrom(enemyPlayerCopy, newPosition)?.let { piece ->
                 enemyPlayerCopy.availablePieces.remove(piece)
             }

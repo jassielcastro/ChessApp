@@ -1,4 +1,4 @@
-package com.ajcm.chess.domain
+package com.ajcm.chess.board
 
 enum class Color {
     BLACK, WHITE

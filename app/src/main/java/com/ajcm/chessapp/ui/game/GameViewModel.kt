@@ -1,12 +1,12 @@
 package com.ajcm.chessapp.ui.game
 
 import androidx.lifecycle.LiveData
-import com.ajcm.chess.data.Game
-import com.ajcm.chess.domain.Color
-import com.ajcm.chess.domain.Player
-import com.ajcm.chess.domain.board.Board
-import com.ajcm.chess.domain.board.Position
-import com.ajcm.chess.domain.piece.*
+import com.ajcm.chess.game.Game
+import com.ajcm.chess.board.Color
+import com.ajcm.chess.board.Player
+import com.ajcm.chess.board.Board
+import com.ajcm.chess.board.Position
+import com.ajcm.chess.piece.*
 import com.ajcm.chess.game.GameSource
 import com.ajcm.design.archi.ScopedViewModel
 import kotlinx.coroutines.CoroutineDispatcher

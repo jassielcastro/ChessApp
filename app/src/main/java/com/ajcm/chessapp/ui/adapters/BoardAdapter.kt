@@ -6,15 +6,16 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.ajcm.chess.domain.Player
-import com.ajcm.chess.domain.board.Position
-import com.ajcm.chess.domain.piece.Piece
+import com.ajcm.chess.board.Player
+import com.ajcm.chess.board.Position
+import com.ajcm.chess.piece.Piece
+import com.ajcm.chess.game.Game
 import com.ajcm.chessapp.R
 import com.ajcm.chessapp.extensions.getImage
 import com.ajcm.design.ViewHolder
 
 class BoardAdapter(
-    private val game: com.ajcm.chess.data.Game,
+    private val game: Game,
     private val onClickListener: (Piece, Player) -> Unit,
     private val onMoveClickListener: (Position, Player) -> Unit,
 ) : RecyclerView.Adapter<ViewHolder>() {

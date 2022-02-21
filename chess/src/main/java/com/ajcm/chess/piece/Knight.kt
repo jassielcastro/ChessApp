@@ -1,9 +1,9 @@
-package com.ajcm.chess.domain.piece
+package com.ajcm.chess.piece
 
-import com.ajcm.chess.data.Game
-import com.ajcm.chess.domain.Color
-import com.ajcm.chess.domain.Player
-import com.ajcm.chess.domain.board.Position
+import com.ajcm.chess.game.Game
+import com.ajcm.chess.board.Color
+import com.ajcm.chess.board.Player
+import com.ajcm.chess.board.Position
 
 class Knight(position: Position, color: Color) : Piece(position, color) {
 

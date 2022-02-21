@@ -1,7 +1,7 @@
 package com.ajcm.chessapp.extensions
 
-import com.ajcm.chess.domain.Color
-import com.ajcm.chess.domain.piece.*
+import com.ajcm.chess.board.Color
+import com.ajcm.chess.piece.*
 import com.ajcm.chessapp.R
 
 fun Piece.getImage(): Int = when (this) {

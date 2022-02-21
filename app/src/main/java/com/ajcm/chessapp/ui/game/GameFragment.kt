@@ -6,12 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
-import com.ajcm.chess.domain.Color
-import com.ajcm.chess.domain.Player
-import com.ajcm.chess.domain.board.Board
-import com.ajcm.chess.domain.board.Position
-import com.ajcm.chess.domain.piece.Pawn
-import com.ajcm.chess.domain.piece.PawnTransform
+import com.ajcm.chess.board.Color
+import com.ajcm.chess.board.Player
+import com.ajcm.chess.board.Board
+import com.ajcm.chess.board.Position
+import com.ajcm.chess.piece.Pawn
+import com.ajcm.chess.piece.PawnTransform
+import com.ajcm.chess.game.Game
 import com.ajcm.chessapp.R
 import com.ajcm.chessapp.databinding.GameFragmentBinding
 import com.ajcm.chessapp.ui.adapters.BoardAdapter
@@ -118,7 +119,7 @@ class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout
         }
     }
 
-    private fun setAdapter(game: com.ajcm.chess.data.Game) = with(binding.gridBoard) {
+    private fun setAdapter(game: Game) = with(binding.gridBoard) {
         adapter = BoardAdapter(
             game,
             viewModel.clickPositionListener,

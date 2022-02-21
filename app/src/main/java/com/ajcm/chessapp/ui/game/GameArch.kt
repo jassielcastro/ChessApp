@@ -1,9 +1,10 @@
 package com.ajcm.chessapp.ui.game
 
-import com.ajcm.chess.domain.Player
-import com.ajcm.chess.domain.board.Position
-import com.ajcm.chess.domain.piece.Pawn
-import com.ajcm.chess.domain.piece.PawnTransform
+import com.ajcm.chess.board.Player
+import com.ajcm.chess.board.Position
+import com.ajcm.chess.piece.Pawn
+import com.ajcm.chess.piece.PawnTransform
+import com.ajcm.chess.game.Game
 import com.ajcm.design.archi.ActionState
 import com.ajcm.design.archi.UiState
 
@@ -17,7 +18,7 @@ sealed class GameAction : ActionState {
 
 sealed class GameState : UiState {
     object SetUpViews : GameState()
-    data class CreateGame(val game: com.ajcm.chess.data.Game) : GameState()
+    data class CreateGame(val game: Game) : GameState()
     data class ShowPossibleMoves(val moves: List<Position>) : GameState()
     object InvalidMove : GameState()
     object KingChecked : GameState()

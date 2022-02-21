@@ -1,4 +1,4 @@
-package com.ajcm.chess.domain.piece
+package com.ajcm.chess.piece
 
 enum class PawnTransform {
     BISHOP, KNIGHT, QUEEN, ROOK
