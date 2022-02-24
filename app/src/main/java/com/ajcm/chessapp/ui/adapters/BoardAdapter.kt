@@ -6,16 +6,16 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.ajcm.chess.board.Player
+import com.ajcm.chess.Board
+import com.ajcm.chess.Piece
+import com.ajcm.chess.Player
 import com.ajcm.chess.board.Position
-import com.ajcm.chess.piece.Piece
-import com.ajcm.chess.game.Game
 import com.ajcm.chessapp.R
 import com.ajcm.chessapp.extensions.getImage
 import com.ajcm.design.ViewHolder
 
 class BoardAdapter(
-    private val game: Game,
+    private val board: Board,
     private val onClickListener: (Piece, Player) -> Unit,
     private val onMoveClickListener: (Position, Player) -> Unit,
 ) : RecyclerView.Adapter<ViewHolder>() {
@@ -33,7 +33,7 @@ class BoardAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val currentPosition = game.getBoard().positions[holder.bindingAdapterPosition]
+        val currentPosition = board.positions[holder.bindingAdapterPosition]
 
         with(holder.itemView) {
             val bg = findViewById<View>(R.id.bgItem)
@@ -85,5 +85,5 @@ class BoardAdapter(
         }
     }
 
-    override fun getItemCount(): Int = game.getBoard().positions.size
+    override fun getItemCount(): Int = board.positions.size
 }

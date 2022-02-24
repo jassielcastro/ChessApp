@@ -10,6 +10,8 @@ import com.ajcm.chess.piece.*
 import com.ajcm.chess.game.GameSource
 import com.ajcm.design.archi.ScopedViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlin.random.Random
 
 class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameState, GameAction>(uiDispatcher) {
@@ -20,6 +22,23 @@ class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameSta
     private lateinit var playerOne: Player
     private lateinit var playerTwo: Player
     private lateinit var game: Game
+
+    private val board = com.ajcm.chess.Board()
+
+    val firstPlayerMoving: StateFlow<Boolean>
+        get() = board.firstPlayer.isMoving.asStateFlow()
+    val secondPlayerMoving: StateFlow<Boolean>
+        get() = board.secondPlayer.isMoving.asStateFlow()
+
+    val firstPlayerAvailablePieces: StateFlow<List<com.ajcm.chess.Piece>>
+        get() = board.firstPlayer.availablePieces.asStateFlow()
+    val secondPlayerAvailablePieces: StateFlow<List<com.ajcm.chess.Piece>>
+        get() = board.secondPlayer.availablePieces.asStateFlow()
+
+    val firstPlayerDeadPieces: StateFlow<List<com.ajcm.chess.Piece>>
+        get() = board.firstPlayer.deadPieces.asStateFlow()
+    val secondPlayerDeadPieces: StateFlow<List<com.ajcm.chess.Piece>>
+        get() = board.secondPlayer.deadPieces.asStateFlow()
 
     private var lastPieceSelected: Piece? = null
 

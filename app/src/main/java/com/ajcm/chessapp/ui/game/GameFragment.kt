@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.ajcm.chess.board.Color
 import com.ajcm.chess.board.Player
@@ -20,6 +21,8 @@ import com.ajcm.design.SpanningGridLayoutManager
 import com.ajcm.design.archi.BaseFragment
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout.game_fragment) {
@@ -29,7 +32,11 @@ class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout
     private lateinit var binding: GameFragmentBinding
     private lateinit var boardAdapter: BoardAdapter
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = GameFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -37,10 +44,52 @@ class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.dispatch(GameAction.Init)
+
+        lifecycleScope.launchWhenCreated {
+            addObservers()
+        }
+    }
+
+    private fun addObservers() {
+        lifecycleScope.launch {
+            viewModel.firstPlayerAvailablePieces.collect {
+                println("GameFragment.addObservers ---> firstPlayerAvailablePieces: $it")
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.secondPlayerAvailablePieces.collect {
+                println("GameFragment.addObservers ---> secondPlayerAvailablePieces: $it")
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.firstPlayerMoving.collect {
+                println("GameFragment.addObservers ---> firstPlayerMoving: $it")
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.secondPlayerMoving.collect {
+                println("GameFragment.addObservers ---> secondPlayerMoving: $it")
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.firstPlayerDeadPieces.collect {
+                println("GameFragment.addObservers ---> firstPlayerDeadPieces: $it")
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.secondPlayerDeadPieces.collect {
+                println("GameFragment.addObservers ---> secondPlayerDeadPieces: $it")
+            }
+        }
     }
 
     override fun render(state: GameState) {
-        when(state) {
+        when (state) {
             GameState.SetUpViews -> setUpViews()
             is GameState.CreateGame -> setAdapter(state.game)
             is GameState.ShowPossibleMoves -> showPossibleMoves(state.moves)
@@ -65,13 +114,17 @@ class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout
         if (playerMoving.color == Color.WHITE) {
             txtPlayerWhite.text = getText(R.string.title_your_turn)
             txtPlayerBlack.text = getText(R.string.title_waiting)
-            txtPlayerWhite.background = ContextCompat.getDrawable(requireContext(), R.drawable.turn_on_background)
-            txtPlayerBlack.background = ContextCompat.getDrawable(requireContext(), R.drawable.turn_off_background)
+            txtPlayerWhite.background =
+                ContextCompat.getDrawable(requireContext(), R.drawable.turn_on_background)
+            txtPlayerBlack.background =
+                ContextCompat.getDrawable(requireContext(), R.drawable.turn_off_background)
         } else {
             txtPlayerWhite.text = getText(R.string.title_waiting)
             txtPlayerBlack.text = getText(R.string.title_your_turn)
-            txtPlayerWhite.background = ContextCompat.getDrawable(requireContext(), R.drawable.turn_off_background)
-            txtPlayerBlack.background = ContextCompat.getDrawable(requireContext(), R.drawable.turn_on_background)
+            txtPlayerWhite.background =
+                ContextCompat.getDrawable(requireContext(), R.drawable.turn_off_background)
+            txtPlayerBlack.background =
+                ContextCompat.getDrawable(requireContext(), R.drawable.turn_on_background)
         }
     }
 
@@ -110,10 +163,12 @@ class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout
                 height = measuredWidth
             }
 
-            layoutManager = SpanningGridLayoutManager(context,
+            layoutManager = SpanningGridLayoutManager(
+                context,
                 Board.CELL_COUNT,
                 GridLayoutManager.HORIZONTAL,
-                false)
+                false
+            )
 
             viewModel.dispatch(GameAction.Reset)
         }
