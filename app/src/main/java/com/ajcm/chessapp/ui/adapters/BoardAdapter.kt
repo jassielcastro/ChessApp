@@ -95,7 +95,7 @@ class BoardAdapter(
     private fun addClickListener(imgPiece: ImageView, currentPosition: Position) {
         imgPiece.setOnClickListener {
             val pieceOnBoard = getPossiblePieceFrom(currentPosition)
-            if (pieceOnBoard != null) {
+            if (pieceOnBoard != null && pieceOnBoard.playerIsMoving()) {
                 possiblesMoves = if (possiblesMoves.isEmpty()) {
                     pieceOnBoard.getAllPossibleMoves()
                 } else {
