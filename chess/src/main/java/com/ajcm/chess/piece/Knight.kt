@@ -1,26 +1,27 @@
 package com.ajcm.chess.piece
 
-import com.ajcm.chess.game.Game
-import com.ajcm.chess.board.Color
 import com.ajcm.chess.board.Player
 import com.ajcm.chess.board.Position
+import com.ajcm.chess.ext.next
 
-class Knight(position: Position, color: Color) : Piece(position, color) {
+class Knight(
+    override val player: Player
+) : Piece(player) {
 
-    override fun getAllPossibleMovements(playerRequest: Player, game: Game): List<Position> {
-        val possibleMoves = mutableListOf<Position>()
-        for (position in -2..2) {
-            val y = if (position % 2 != 0) 2 else 1
-            if (position != 0) {
-                possibleMoves.add(next(position, y))
-                possibleMoves.add(next(position, -1 * y))
+    override fun getPossibleMoves(): List<Position> {
+        val moves = mutableListOf<Position>()
+        for (p in -2..2) {
+            val y = if (p % 2 != 0) 2 else 1
+            if (p != 0) {
+                moves.add(position.next(p, y))
+                moves.add(position.next(p, -1 * y))
             }
         }
-        return possibleMoves.removeInvalidMoves(playerRequest, game)
+        return moves.toList()
     }
 
-    override fun clone(): Knight {
-        return Knight(position, color)
+    override fun copyWith(player: Player): Piece {
+        return Knight(player)
     }
 
 }

@@ -1,83 +1,115 @@
 package com.ajcm.chess.piece
 
-import com.ajcm.chess.game.Game
-import com.ajcm.chess.board.Color
-import com.ajcm.chess.board.Player
-import com.ajcm.chess.board.Board
-import com.ajcm.chess.board.Coordinate
-import com.ajcm.chess.board.Position
+import com.ajcm.chess.Scope
+import com.ajcm.chess.board.*
+import com.ajcm.chess.ext.clean
+import com.ajcm.chess.ext.myEnemy
+import com.ajcm.chess.ext.updateAndEmit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import java.util.*
 
-abstract class Piece(position: Position, val color: Color) : Coordinate(position) {
+abstract class Piece(
+    internal open val player: Player,
+    val position: MutableStateFlow<Position> = MutableStateFlow(Position())
+) : Scope by Scope.Impl(Dispatchers.Main) {
 
-    private val initialPosition: Position = position
+    internal val id: String = UUID.randomUUID().toString()
+    internal var isInitialMove: Boolean = true
 
-    val name: String = this::class.java.simpleName
-
-    fun isFirstMovement(): Boolean = this.initialPosition == position
-
-    internal abstract fun getAllPossibleMovements(playerRequest: Player, game: Game): List<Position>
-
-    fun getPossibleMoves(playerRequest: Player, game: Game): List<Position> {
-        val moves = this.getAllPossibleMovements(playerRequest, game)
-        val validMoves = mutableListOf<Position>()
-        for (position in moves) {
-            if (!game.isValidMadeFakeMovement(this.position, position, game.enemyOf(playerRequest))) {
-                validMoves.add(position)
-            }
-        }
-        return validMoves.toList()
+    val color: Color by lazy {
+        player.color
     }
 
-    internal open fun getSpecialMove(playerRequest: Player, game: Game): Position? = null
-
-    open fun canConvertPiece(): Boolean = false
-
-    internal fun next(sumX: Int, sumY: Int) = Position(
-        this.getX() + sumX,
-        this.getY() + sumY
-    )
-
-    internal fun List<Position>.removeInvalidMoves(player: Player, game: Game): List<Position> {
-        return this.filter {
-            !game.existPieceOn(it, player) && game.getBoard().containPosition(it)
-        }
+    init {
+        startScope()
+        observePosition()
     }
 
-    internal fun getDiagonalMovements(playerRequest: Player, game: Game): List<Position> {
-        val possibleMoves = mutableListOf<Position>()
-        for (d in diagonalMoves) {
-            for (position in 1..Board.CELL_COUNT) {
-                val newPosition = next(d.x * position, d.y * position)
-                if (!game.existPieceOn(newPosition, playerRequest)) {
-                    possibleMoves.add(newPosition)
-                    if (game.existPieceOn(newPosition, game.enemyOf(playerRequest))) {
-                        break
-                    }
-                } else {
-                    break
+    private fun observePosition() {
+        if (this is Pawn) return
+        launch {
+            position.collect {
+                if (!player.isFake && player.canObserveMoves) {
+                    player.validateKingStatus()
                 }
             }
         }
-        return possibleMoves
     }
 
-    internal fun getLinealMovements(playerRequest: Player, game: Game): List<Position> {
-        val possibleMoves = mutableListOf<Position>()
-        for (d in linealMoves) {
-            for (position in 1..Board.CELL_COUNT) {
-                val newPosition = next(d.x * position, d.y * position)
-                if (!game.existPieceOn(newPosition, playerRequest)) {
-                    possibleMoves.add(newPosition)
-                    if (game.existPieceOn(newPosition, game.enemyOf(playerRequest))) {
-                        break
+    private fun startScope() = initScope()
+
+    internal abstract fun getPossibleMoves(): List<Position>
+
+    internal abstract fun copyWith(player: Player): Piece
+
+    fun getAllPossibleMoves(): List<Position> {
+        return if (player.status.value == PlayerStatus.MOVING) {
+            val moves = getCleanedMoves()
+            val validMoves = mutableListOf<Position>()
+            for (position in moves) {
+                if (isValidMove(position)) {
+                    validMoves.add(position)
+                }
+            }
+            validMoves.toList()
+        } else {
+            emptyList()
+        }
+    }
+
+    internal fun getCleanedMoves(): List<Position> = player clean getPossibleMoves()
+
+    internal open fun getSpecialMoves(): List<Position> = emptyList()
+
+    fun updatePosition(newPosition: Position) {
+        if (player.status.value == PlayerStatus.WAITING) return
+        if (player.myEnemy().isKingOn(newPosition)) return
+        player.canObserveMoves = !player.isFake
+        checkIfExistEnemyToRemove(newPosition)
+        updateMove(newPosition)
+    }
+
+    private fun checkIfExistEnemyToRemove(newPosition: Position) {
+        with(player.myEnemy()) {
+            val possibleEnemyPiece = getPieceFrom(newPosition)
+            launch {
+                if (possibleEnemyPiece != null && possibleEnemyPiece !is King) {
+                    this@with.removePieceIn(newPosition)
+                    this@with.deadPieces.updateAndEmit {
+                        it.add(possibleEnemyPiece)
                     }
-                } else {
-                    break
                 }
             }
         }
-        return possibleMoves
     }
 
-    internal abstract fun clone(): Piece
+    internal fun isValidMove(newPosition: Position): Boolean {
+        val me = player.createFakePlayerBy(player)
+        val enemy = player.createFakePlayerBy(player.myEnemy())
+
+        Board(
+            if (me.color == Color.WHITE) me else enemy,
+            if (me.color == Color.WHITE) enemy else me,
+        )
+
+        if (!enemy.isKingOn(newPosition)) {
+            val mockedPiece = me.getPieceFrom(position.value)
+            mockedPiece?.position?.value = newPosition
+            if (enemy.existPieceOn(newPosition)) {
+                enemy.removePieceIn(newPosition)
+            }
+        }
+
+        return !enemy.isKingChecked()
+    }
+
+    private fun updateMove(newPosition: Position) = launch {
+        isInitialMove = false
+        player.myEnemy().status.emit(PlayerStatus.MOVING)
+        player.status.emit(PlayerStatus.WAITING)
+        position.value = newPosition
+    }
+
 }

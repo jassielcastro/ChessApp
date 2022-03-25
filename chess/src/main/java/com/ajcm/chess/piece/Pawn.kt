@@ -1,55 +1,78 @@
 package com.ajcm.chess.piece
 
-import com.ajcm.chess.game.Game
 import com.ajcm.chess.board.Color
 import com.ajcm.chess.board.Player
 import com.ajcm.chess.board.Position
+import com.ajcm.chess.board.PositionConst
+import com.ajcm.chess.ext.myEnemy
+import com.ajcm.chess.ext.next
+import kotlinx.coroutines.launch
 
-class Pawn(position: Position, color: Color) : Piece(position, color) {
+class Pawn(
+    override val player: Player
+) : Piece(player) {
 
-    override fun getAllPossibleMovements(playerRequest: Player, game: Game): List<Position> {
-        val possibleMoves = mutableListOf<Position>()
-        val enemy = game.enemyOf(playerRequest)
+    init {
+        initScope()
+        if (!player.isFake) {
+            observePawnEvolve()
+        }
+    }
+
+    private fun observePawnEvolve() {
+        launch {
+            position.collect { pawnPosition ->
+                val enemyYBaseLine =
+                    if (player.color == Color.WHITE) PositionConst.EIGHT else PositionConst.ONE
+                if (pawnPosition.y == enemyYBaseLine) {
+                    player.evolvePawn.emit(this@Pawn)
+                }
+            }
+        }
+    }
+
+    override fun getPossibleMoves(): List<Position> {
+        val moves = mutableListOf<Position>()
+        val enemy = player.myEnemy()
         val direction = getDirection()
 
-        if (!game.existPieceOn(next(0, 1 * direction), enemy)) {
-            possibleMoves.add(next(0, 1 * direction))
+        if (!enemy.existPieceOn(position.next(0, 1 * direction))) {
+            moves.add(position.next(0, 1 * direction))
         }
-        if (game.existPieceOn(next(-1, 1 * direction), enemy)
-            && !game.isKingEnemyOn(next(-1, 1 * direction), enemy)) {
-            possibleMoves.add(next(-1, 1 * direction))
+        if (enemy.existPieceOn(position.next(-1, 1 * direction))
+            && !enemy.isKingOn(position.next(-1, 1 * direction))
+        ) {
+            moves.add(position.next(-1, 1 * direction))
         }
-        if (game.existPieceOn(next(1, 1 * direction), enemy)
-            && !game.isKingEnemyOn(next(1, 1 * direction), enemy)) {
-            possibleMoves.add(next(1, 1 * direction))
+        if (enemy.existPieceOn(position.next(1, 1 * direction))
+            && !enemy.isKingOn(position.next(1, 1 * direction))
+        ) {
+            moves.add(position.next(1, 1 * direction))
         }
 
-        getSpecialMove(playerRequest, game)?.let { possibleMoves.add(it) }
-        return possibleMoves.removeInvalidMoves(playerRequest, game)
+        moves.addAll(getSpecialMoves())
+
+        return moves.toList()
     }
 
-    override fun getSpecialMove(playerRequest: Player, game: Game): Position? {
-        val isFirstMovement = isFirstMovement()
-        val enemy = game.enemyOf(playerRequest)
+    override fun getSpecialMoves(): List<Position> {
+        val enemy = player.myEnemy()
         val direction = getDirection()
 
-        if (isFirstMovement && !game.existPieceOn(next(0, 1 * direction), enemy)
-            && !game.existPieceOn(next(0, 2 * direction), enemy)) {
-            return next(0, 2 * direction)
+        if (isInitialMove && !enemy.existPieceOn(position.next(0, 1 * direction))
+            && !player.existPieceOn(position.next(0, 1 * direction))
+            && !enemy.existPieceOn(position.next(0, 2 * direction))
+        ) {
+            return listOf(position.next(0, 2 * direction))
         }
 
-        return null
+        return emptyList()
     }
 
-    override fun canConvertPiece(): Boolean {
-        val enemyYBaseLine = if (color == Color.WHITE) 8 else 1
-        return position.y == enemyYBaseLine
+    override fun copyWith(player: Player): Piece {
+        return Pawn(player)
     }
 
-    private fun getDirection() = if (color == Color.WHITE) 1 else -1
-
-    override fun clone(): Pawn {
-        return Pawn(position, color)
-    }
+    private fun getDirection() = if (player.color == Color.WHITE) 1 else -1
 
 }

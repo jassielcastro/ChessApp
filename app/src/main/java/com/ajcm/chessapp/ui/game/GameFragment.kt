@@ -4,30 +4,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import com.ajcm.chess.board.Color
-import com.ajcm.chess.board.Player
 import com.ajcm.chess.board.Board
-import com.ajcm.chess.board.Position
-import com.ajcm.chess.piece.Pawn
+import com.ajcm.chess.board.PlayerStatus
 import com.ajcm.chess.piece.PawnTransform
-import com.ajcm.chess.game.Game
 import com.ajcm.chessapp.R
 import com.ajcm.chessapp.databinding.GameFragmentBinding
 import com.ajcm.chessapp.ui.adapters.BoardAdapter
 import com.ajcm.design.SpanningGridLayoutManager
-import com.ajcm.design.archi.BaseFragment
-import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout.game_fragment) {
+class GameFragment : Fragment(R.layout.game_fragment) {
 
-    override val viewModel: GameViewModel by viewModel()
+    private val viewModel: GameViewModel by viewModel()
 
     private lateinit var binding: GameFragmentBinding
     private lateinit var boardAdapter: BoardAdapter
@@ -43,118 +37,84 @@ class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.dispatch(GameAction.Init)
+        setUpViews()
+
+        setAdapter(viewModel.board)
 
         lifecycleScope.launchWhenCreated {
             addObservers()
         }
     }
 
-    private fun addObservers() {
-        lifecycleScope.launch {
-            viewModel.firstPlayerAvailablePieces.collect {
-                println("GameFragment.addObservers ---> firstPlayerAvailablePieces: $it")
+    private fun addObservers() = with(lifecycleScope) {
+        launch {
+            viewModel.whiteAvailablePieces.collect {
+                boardAdapter.whiteAvailablePieces = it
             }
         }
 
-        lifecycleScope.launch {
-            viewModel.secondPlayerAvailablePieces.collect {
-                println("GameFragment.addObservers ---> secondPlayerAvailablePieces: $it")
+        launch {
+            viewModel.blackAvailablePieces.collect {
+                boardAdapter.blackAvailablePieces = it
             }
         }
 
-        lifecycleScope.launch {
-            viewModel.firstPlayerMoving.collect {
-                println("GameFragment.addObservers ---> firstPlayerMoving: $it")
+        launch {
+            viewModel.whitePlayerStatus.collect {
+                isPlayerMoving(it, binding.txtPlayerWhite)
             }
         }
 
-        lifecycleScope.launch {
-            viewModel.secondPlayerMoving.collect {
-                println("GameFragment.addObservers ---> secondPlayerMoving: $it")
+        launch {
+            viewModel.blackPlayerStatus.collect {
+                isPlayerMoving(it, binding.txtPlayerBlack)
             }
         }
 
-        lifecycleScope.launch {
-            viewModel.firstPlayerDeadPieces.collect {
+        launch {
+            viewModel.whiteDeadPieces.collect {
                 println("GameFragment.addObservers ---> firstPlayerDeadPieces: $it")
             }
         }
 
-        lifecycleScope.launch {
-            viewModel.secondPlayerDeadPieces.collect {
+        launch {
+            viewModel.blackDeadPieces.collect {
                 println("GameFragment.addObservers ---> secondPlayerDeadPieces: $it")
             }
         }
-    }
 
-    override fun render(state: GameState) {
-        when (state) {
-            GameState.SetUpViews -> setUpViews()
-            is GameState.CreateGame -> setAdapter(state.game)
-            is GameState.ShowPossibleMoves -> showPossibleMoves(state.moves)
-            GameState.InvalidMove -> showInvalidMove()
-            GameState.KingChecked -> showKingChecked()
-            GameState.Checkmate -> showCheckmate()
-            GameState.MoveFinished -> viewModel.dispatch(GameAction.CheckKingStatus)
-            GameState.ShouldUpdateTurn -> viewModel.dispatch(GameAction.UpdateTurn)
-            is GameState.ConvertPawnPiece -> showListOfPossibleChanges(state.pawn)
-            GameState.UpdateNewPieces -> boardAdapter.notifyDataSetChanged()
-            is GameState.ShowNewTurn -> showNewTurn(state.playerMoving)
-        }
-    }
-
-    private fun showListOfPossibleChanges(pawn: Pawn) {
-        showAlert("Pawn ready to transform!") {
-            viewModel.dispatch(GameAction.ChangePawnPieceFor(PawnTransform.QUEEN, pawn))
-        }
-    }
-
-    private fun showNewTurn(playerMoving: Player) = with(binding) {
-        if (playerMoving.color == Color.WHITE) {
-            txtPlayerWhite.text = getText(R.string.title_your_turn)
-            txtPlayerBlack.text = getText(R.string.title_waiting)
-            txtPlayerWhite.background =
-                ContextCompat.getDrawable(requireContext(), R.drawable.turn_on_background)
-            txtPlayerBlack.background =
-                ContextCompat.getDrawable(requireContext(), R.drawable.turn_off_background)
-        } else {
-            txtPlayerWhite.text = getText(R.string.title_waiting)
-            txtPlayerBlack.text = getText(R.string.title_your_turn)
-            txtPlayerWhite.background =
-                ContextCompat.getDrawable(requireContext(), R.drawable.turn_off_background)
-            txtPlayerBlack.background =
-                ContextCompat.getDrawable(requireContext(), R.drawable.turn_on_background)
-        }
-    }
-
-    private fun showCheckmate() {
-        showAlert("Game finished!") {
-            viewModel.dispatch(GameAction.Reset)
-        }
-    }
-
-    private fun showKingChecked() {
-        showAlert("King checked!")
-    }
-
-    private fun showInvalidMove() {
-        showAlert("Invalid movement...")
-    }
-
-    private fun showAlert(title: String, completion: () -> Unit = {}) {
-        val snack = Snackbar.make(binding.rootGameView, title, Snackbar.LENGTH_SHORT)
-        snack.addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
-            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                super.onDismissed(transientBottomBar, event)
-                completion()
+        launch {
+            viewModel.whiteKingStatus.collect {
+                println("GameFragment.addObservers ---> whiteKingStatus: $it")
             }
-        })
-        snack.show()
+        }
+
+        launch {
+            viewModel.blackKingStatus.collect {
+                println("GameFragment.addObservers ---> blackKingStatus: $it")
+            }
+        }
+
+        launch {
+            viewModel.pawnToEvolve.collect {
+                it?.let {
+                    viewModel.evolvePawn(it, PawnTransform.QUEEN)
+                }
+            }
+        }
+
     }
 
-    private fun showPossibleMoves(moves: List<Position>) {
-        boardAdapter.possiblesMoves = moves
+    private fun isPlayerMoving(status: PlayerStatus, textView: TextView) {
+        if (status == PlayerStatus.MOVING) {
+            textView.text = getText(R.string.title_your_turn)
+            textView.background =
+                ContextCompat.getDrawable(requireContext(), R.drawable.turn_on_background)
+        } else {
+            textView.text = getText(R.string.title_waiting)
+            textView.background =
+                ContextCompat.getDrawable(requireContext(), R.drawable.turn_off_background)
+        }
     }
 
     private fun setUpViews() = with(binding.gridBoard) {
@@ -169,14 +129,12 @@ class GameFragment : BaseFragment<GameState, GameAction, GameViewModel>(R.layout
                 GridLayoutManager.HORIZONTAL,
                 false
             )
-
-            viewModel.dispatch(GameAction.Reset)
         }
     }
 
-    private fun setAdapter(game: Game) = with(binding.gridBoard) {
+    private fun setAdapter(board: Board) = with(binding.gridBoard) {
         adapter = BoardAdapter(
-            game,
+            board = board,
             viewModel.clickPositionListener,
             viewModel.movedClickListener
         ).also { boardAdapter = it }

@@ -1,18 +1,19 @@
 package com.ajcm.chess.piece
 
-import com.ajcm.chess.game.Game
-import com.ajcm.chess.board.Color
+import com.ajcm.chess.board.MovesDelegate
 import com.ajcm.chess.board.Player
 import com.ajcm.chess.board.Position
 
-class Bishop(position: Position, color: Color) : Piece(position, color) {
+class Bishop(
+    override val player: Player
+) : Piece(player), MovesDelegate by MovesDelegate.Impl() {
 
-    override fun getAllPossibleMovements(playerRequest: Player, game: Game): List<Position> {
-        return getDiagonalMovements(playerRequest, game).removeInvalidMoves(playerRequest, game)
+    override fun getPossibleMoves(): List<Position> {
+        return getMovesBy(this, diagonalMoves)
     }
 
-    override fun clone(): Bishop {
-        return Bishop(position, color)
+    override fun copyWith(player: Player): Piece {
+        return Bishop(player)
     }
 
 }
