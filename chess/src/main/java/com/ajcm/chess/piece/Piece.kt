@@ -63,6 +63,8 @@ abstract class Piece(
 
     internal open fun getSpecialMoves(): List<Position> = emptyList()
 
+    fun playerIsMoving() = player.status.value == PlayerStatus.MOVING
+
     fun updatePosition(newPosition: Position) {
         if (player.status.value == PlayerStatus.WAITING) return
         if (player.myEnemy().isKingOn(newPosition)) return
