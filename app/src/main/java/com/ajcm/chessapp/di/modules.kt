@@ -13,5 +13,5 @@ val appModule = module {
 
 val fragments = module {
     viewModel { SplashViewModel( get()) }
-    viewModel { GameViewModel( get()) }
+    viewModel { GameViewModel() }
 }

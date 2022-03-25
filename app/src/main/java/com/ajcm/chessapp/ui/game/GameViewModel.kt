@@ -1,108 +1,68 @@
 package com.ajcm.chessapp.ui.game
 
-import androidx.lifecycle.LiveData
-import com.ajcm.chess.data.Game
-import com.ajcm.chess.domain.Color
-import com.ajcm.chess.domain.Player
-import com.ajcm.chess.domain.board.Board
-import com.ajcm.chess.domain.board.Position
-import com.ajcm.chess.domain.piece.*
-import com.ajcm.chess.game.GameSource
-import com.ajcm.design.archi.ScopedViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlin.random.Random
+import androidx.lifecycle.ViewModel
+import com.ajcm.chess.board.Board
+import com.ajcm.chess.board.KingStatus
+import com.ajcm.chess.board.PlayerStatus
+import com.ajcm.chess.board.Position
+import com.ajcm.chess.piece.PawnTransform
+import com.ajcm.chess.piece.Pawn
+import com.ajcm.chess.piece.Piece
+import kotlinx.coroutines.flow.StateFlow
 
-class GameViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<GameState, GameAction>(uiDispatcher) {
+class GameViewModel : ViewModel() {
 
-    override val model: LiveData<GameState>
-        get() = mModel
+    var board: Board = Board()
 
-    private lateinit var playerOne: Player
-    private lateinit var playerTwo: Player
-    private lateinit var game: Game
+    val whitePlayerStatus: StateFlow<PlayerStatus>
+        get() = board.whitePlayerStatus
+    val blackPlayerStatus: StateFlow<PlayerStatus>
+        get() = board.blackPlayerStatus
+
+    val whiteAvailablePieces: StateFlow<List<Piece>>
+        get() = board.whiteAvailablePieces
+    val blackAvailablePieces: StateFlow<List<Piece>>
+        get() = board.blackAvailablePieces
+
+    val whiteDeadPieces: StateFlow<List<Piece>>
+        get() = board.whiteDeadPieces
+    val blackDeadPieces: StateFlow<List<Piece>>
+        get() = board.blackDeadPieces
+
+    val whiteKingStatus: StateFlow<KingStatus>
+        get() = board.whiteKingStatus
+    val blackKingStatus: StateFlow<KingStatus>
+        get() = board.blackKingStatus
+
+    val pawnToEvolve: StateFlow<Pawn?>
+        get() = board.pawnToEvolve
 
     private var lastPieceSelected: Piece? = null
 
-    val clickPositionListener: (Piece, Player) -> Unit = (::getMovementsOf)
-    val movedClickListener: (Position, Player) -> Unit = (::makeMovement)
+    val clickPositionListener: (Piece) -> Unit = (::getMovementsOf)
+    val movedClickListener: (Position) -> Unit = (::makeMovement)
 
-    init {
-        initScope()
+    fun resetGame() {
+        board = Board()
     }
 
-    override fun dispatch(actionState: GameAction) {
-        when(actionState) {
-            GameAction.Init -> consume(GameState.SetUpViews)
-            GameAction.Reset -> resetGame()
-            GameAction.CheckKingStatus -> checkKingStatus(game.whoIsMoving())
-            GameAction.UpdateTurn -> updateTurn()
-            is GameAction.ChangePawnPieceFor -> changePawnPiece(actionState.newPiece, actionState.currentPiece)
+    private fun getMovementsOf(piece: Piece) {
+        lastPieceSelected = if (lastPieceSelected != piece) {
+            piece
+        } else {
+            null
         }
     }
 
-    private fun changePawnPiece(newPawn: PawnTransform, currentPawn: Pawn) {
-        game.convert(currentPawn, newPawn)
-
-        consume(GameState.UpdateNewPieces)
-        consume(GameState.MoveFinished)
-    }
-
-    private fun updateTurn() {
-        game.updateTurn()
-        consume(GameState.ShowNewTurn(game.whoIsMoving()))
-    }
-
-    private fun resetGame() {
-        val randomTurn = Random.nextInt(0, 1)
-        playerOne = Player(if (randomTurn == 1) Color.WHITE else Color.BLACK)
-        playerTwo = Player(if (randomTurn == 1) Color.BLACK else Color.WHITE)
-
-        game = GameSource(playerOne, playerTwo, Board())
-
-        consume(GameState.CreateGame(game))
-    }
-
-    private fun clearPossibleMoves() {
-        lastPieceSelected = null
-        consume(GameState.ShowPossibleMoves(emptyList()))
-    }
-
-    private fun getMovementsOf(piece: Piece, player: Player) {
-        if (lastPieceSelected != piece) {
-            val moves = piece.getPossibleMoves(player, game)
-            if (moves.isNotEmpty()) {
-                lastPieceSelected = piece
-                consume(GameState.ShowPossibleMoves(moves))
-                return
-            }
-        }
-        clearPossibleMoves()
-    }
-
-    private fun makeMovement(newPosition: Position, player: Player) {
+    private fun makeMovement(newPosition: Position) {
         lastPieceSelected?.let {
-            if (!game.isKingEnemyOn(newPosition, game.enemyOf(player))) {
-                game.updateMovement(it, newPosition, player)
-                clearPossibleMoves()
-                if (it.canConvertPiece()) {
-                    consume(GameState.ConvertPawnPiece(it as Pawn))
-                    return
-                }
-                consume(GameState.MoveFinished)
-            } else {
-                consume(GameState.InvalidMove)
-            }
+            it.updatePosition(newPosition)
+            lastPieceSelected = null
         }
     }
 
-    private fun checkKingStatus(player: Player) {
-        if (game.isKingCheckedOf(player, game.enemyOf(player))) {
-            consume(GameState.KingChecked)
-            if (game.hasNoOwnMovements(player, game.enemyOf(player))) {
-                consume(GameState.Checkmate)
-            }
-        }
-        consume(GameState.ShouldUpdateTurn)
+    fun evolvePawn(pawnV2: Pawn, transform: PawnTransform) {
+        board.transform(pawnV2, transform)
     }
 
 }

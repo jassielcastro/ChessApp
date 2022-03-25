@@ -1,25 +1,39 @@
 package com.ajcm.chessapp.ui.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.ajcm.chess.domain.Player
-import com.ajcm.chess.domain.board.Position
-import com.ajcm.chess.domain.piece.Piece
+import com.ajcm.chess.board.Board
+import com.ajcm.chess.board.Position
+import com.ajcm.chess.piece.Piece
 import com.ajcm.chessapp.R
 import com.ajcm.chessapp.extensions.getImage
 import com.ajcm.design.ViewHolder
 
+@SuppressLint("NotifyDataSetChanged")
 class BoardAdapter(
-    private val game: com.ajcm.chess.data.Game,
-    private val onClickListener: (Piece, Player) -> Unit,
-    private val onMoveClickListener: (Position, Player) -> Unit,
+    private val board: Board,
+    private val onClickListener: (Piece) -> Unit,
+    private val onMoveClickListener: (Position) -> Unit,
 ) : RecyclerView.Adapter<ViewHolder>() {
 
-    var possiblesMoves: List<Position> = emptyList()
+    var whiteAvailablePieces: List<Piece> = emptyList()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
+    var blackAvailablePieces: List<Piece> = emptyList()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
+    private var possiblesMoves: List<Position> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -32,14 +46,14 @@ class BoardAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val currentPosition = game.getBoard().positions[holder.bindingAdapterPosition]
+        val currentPosition = board.positions[holder.bindingAdapterPosition]
 
         with(holder.itemView) {
             val bg = findViewById<View>(R.id.bgItem)
             val imgPiece = findViewById<ImageView>(R.id.imgPiece)
             val possibleView = findViewById<View>(R.id.bgPossibleMove)
 
-            val pieceOnBoard = game.getPiecesOnBord(currentPosition)
+            val pieceOnBoard = getPossiblePieceFrom(currentPosition)
 
             pieceOnBoard?.let {
                 imgPiece.setImageResource(it.getImage())
@@ -57,16 +71,22 @@ class BoardAdapter(
         }
     }
 
-    private fun checkPossibleMoves(currentPosition: Position, possibleView: View, pieceOnBoard: Piece?) {
+    private fun checkPossibleMoves(
+        currentPosition: Position,
+        possibleView: View,
+        pieceOnBoard: Piece?
+    ) {
         if (possiblesMoves.contains(currentPosition)) {
             possibleView.visibility = View.VISIBLE
             possibleView.background = pieceOnBoard?.let {
-                ContextCompat.getDrawable(possibleView.context, R.drawable.possible_move_checked).also {
-                    possibleView.alpha = 0.6f
+                ContextCompat.getDrawable(possibleView.context, R.drawable.possible_move_checked)
+                    .also {
+                        possibleView.alpha = 0.6f
+                    }
+            } ?: ContextCompat.getDrawable(possibleView.context, R.drawable.possible_move_selector)
+                .also {
+                    possibleView.alpha = 1f
                 }
-            } ?: ContextCompat.getDrawable(possibleView.context, R.drawable.possible_move_selector).also {
-                possibleView.alpha = 1f
-            }
         } else {
             possibleView.visibility = View.GONE
         }
@@ -74,15 +94,26 @@ class BoardAdapter(
 
     private fun addClickListener(imgPiece: ImageView, currentPosition: Position) {
         imgPiece.setOnClickListener {
-            with(game.whoIsMoving()) {
-                game.getChessPieceFrom(this, currentPosition)?.let {
-                    onClickListener(it, this)
-                } ?: if (possiblesMoves.isNotEmpty() && possiblesMoves.contains(currentPosition)) {
-                    onMoveClickListener(currentPosition, this)
+            val pieceOnBoard = getPossiblePieceFrom(currentPosition)
+            if (pieceOnBoard != null) {
+                possiblesMoves = if (possiblesMoves.isEmpty()) {
+                    pieceOnBoard.getAllPossibleMoves()
+                } else {
+                    emptyList()
                 }
+                onClickListener(pieceOnBoard)
+            } else if (possiblesMoves.isNotEmpty() && possiblesMoves.contains(currentPosition)) {
+                onMoveClickListener(currentPosition)
+                possiblesMoves = emptyList()
             }
         }
     }
 
-    override fun getItemCount(): Int = game.getBoard().positions.size
+    private fun getPossiblePieceFrom(currentPosition: Position): Piece? {
+        return whiteAvailablePieces
+            .firstOrNull { it.position.value == currentPosition }
+            ?: blackAvailablePieces.firstOrNull { it.position.value == currentPosition }
+    }
+
+    override fun getItemCount(): Int = board.positions.size
 }
