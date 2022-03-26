@@ -2,7 +2,7 @@
 buildscript {
 
     ext.kotlin_version = "1.6.10"
-    ext.gradle_version = "4.1.3"
+    ext.gradle_version = "4.0.0"
     ext.koin_version = "2.2.3"
     apply from: 'common-libs.gradle'
     apply from: 'app-config.gradle'
