@@ -4,7 +4,7 @@ This library contains the essential functionality of the Chess game, so you will
 
 [![API](https://img.shields.io/badge/API-14%2B-orange.svg?style=flat)](https://android-arsenal.com/api?level=14)
 
-![Header](./docs/chess-app-sdk.png)
+<img src="./docs/chess-app-sdk.png" width="50%"/>
 
 ## General
 
@@ -16,7 +16,7 @@ In order to use any library published within GitHub packages, you will need to d
 
 You will have to create your token by requesting the following permissions:
 
-![Permissions](./docs/gthub_permissions.png)
+<img src="./docs/gthub_permissions.png" width="50%"/>
 
 Once your token is created (remember to save it and never share it) we will create the following files in your project:
 
@@ -45,118 +45,86 @@ dependencies {
 
 # Usage
 
-As we know, chess games are composed of 2 parts:
-1. Two players (White and Black) 2.
-2. A board
+All we need to do is to create a Board, yes, that's all.
 
-So it will be necessary to create these objects before passing them to our game.
+And the board is created as follows:
 
 ```kotlin
-private val playerOne: Player = Player(Color.WHITE)
-private val playerTwo: Player = Player(Color.BLACK)
+var board: Board = Board()
 ```
 
-These players can be created depending on the needs of the game, but just keep in mind that you need a player with white pieces and another with black pieces, the pieces are generated automatically, just indicate the color.
+Now, what can we do with our game? It's very simple, we just need to observe states of the game itself.
 
-Now, the board is created as follows:
+Observe the Status of the players: Moving, Waiting:
 
 ```kotlin
-private val board: Board = Board()
+val whitePlayerStatus: StateFlow<PlayerStatus>
+    get() = board.whitePlayerStatus
+val blackPlayerStatus: StateFlow<PlayerStatus>
+    get() = board.blackPlayerStatus
 ```
 
-And finally, we can create our game:
+Observe the Status of the Kings: None, Check, CheckMate:
 
 ```kotlin
-private val game: Game = GameSource(playerOne, playerTwo, board)
+val whiteKingStatus: StateFlow<KingStatus>
+    get() = board.whiteKingStatus
+val blackKingStatus: StateFlow<KingStatus>
+    get() = board.blackKingStatus
 ```
 
-Having our game ready, these are the functions that can be performed:
-
-1. Each player has a list of available pieces and with each piece you can obtain their possible moves:
+Observe the available pieces on board:
 
 ```kotlin
-val piece = playerOne.availablePieces[0] // obtaining the first piece
-val moves = piece.getPossibleMoves(playerOne, game)
+val whiteAvailablePieces: StateFlow<List<Piece>>
+    get() = board.whiteAvailablePieces
+val blackAvailablePieces: StateFlow<List<Piece>>
+    get() = board.blackAvailablePieces
 ```
 
-2. Obtain the enemy of player:
+Observe the "dead" pieces on board:
 
 ```kotlin
-game.enemyOf(player)
+val whiteDeadPieces: StateFlow<List<Piece>>
+    get() = board.whiteDeadPieces
+val blackDeadPieces: StateFlow<List<Piece>>
+    get() = board.blackDeadPieces
 ```
 
-3. Validate if the next move can be performed if the King is not in that position:
+Observe the Pawn status (if it is available to transforme to another piece):
 
 ```kotlin
-game.isKingEnemyOn(position, enemyPlayer)
+val pawnToEvolve: StateFlow<Pawn?>
+    get() = board.pawnToEvolve
 ```
 
-4. Update or make a movement:
+Once we have all these objects, we can work with them.
+
+Get all posible moves of a piece:
+
+* **Note**: This list of moves is given by valid moves that do not jeopardize the King's status, i.e., if the King is in Check status, the returned moves of a piece will be the only ones that avoid the Check to its King, otherwise it will be an empty list.
 
 ```kotlin
-game.updateMovement(piece, newPosition, player)
+piece.getAllPossibleMoves()
 ```
 
-5. If the moved piece is a Pawn, you can validate if the Pawn can convert to another piece:
+Evolve a Pawn piece when it´s possible:
 
 ```kotlin
-piece.canConvertPiece()
+board.transform(pawn, transformTransformation) // PawnTransform.[BISHOP, KNIGHT, QUEEN, ROOK]
 ```
 
-6. Validate if the King is checked:
-
+Validate if a piece can move:
 ```kotlin
-game.isKingCheckedOf(player, playerEnemy)
+piece.playerIsMoving()
 ```
 
-7. Validate that there are still movements available [Jake-Mate].:
+Move a piece:
+
+* **Note**: If an enemy piece is encountered in such a move, it is eliminated and a notification is notified to dead pieces observer.
 
 ```kotlin
-game.hasNoOwnMovements(player, playerEnemy)
-```
-
-8. Know who is moving:
-
-```kotlin
-game.whoIsMoving()
-```
-
-9. Convert the Pawn to a new selected Piece:
-
-```kotlin
-game.convert(pawnPiece, PawnTransform.QUEEN)
-```
-
-10. Update the turn:
-
-```kotlin
-game.updateTurn()
-```
-
-## Example
-
-```kotlin
-private fun makeMovement(piece: Piece, newPosition: Position, player: Player) {
-    if (!game.isKingEnemyOn(newPosition, game.enemyOf(player))) {
-         game.updateMovement(piece, newPosition, player)
-         if (piece.canConvertPiece()) {
-            showAvailablePawnTransformations()
-         }
-    }
-}
-```
-
-```kotlin
-private fun checkKingStatus(player: Player) {
-    if (game.isKingCheckedOf(player, game.enemyOf(player))) {
-        showKingChecked()
-        if (game.hasNoOwnMovements(player, game.enemyOf(player))) {
-            showJakeMate()
-            return
-        }
-    }
-    game.updateTurn()
-}
+piece.updatePosition(newPosition)
 ```
 
 # Contributing & Reporting Issues
